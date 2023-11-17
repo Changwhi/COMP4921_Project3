@@ -41,7 +41,9 @@ router.get("/", async (req, res) => {
   console.log("idex page hit")
   // const isLoggedIn = isValidSession(req)
   // res.render("index", { isLoggedIn: isLoggedIn })
-  res.send("Hello")
+  res.render("index", { isLoggedIn: false })
+  return;
+
 });
 
 
