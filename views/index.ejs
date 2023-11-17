@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<%- include("templates/header") %>
+
+  <body>
+    <section class="section has-background-light">
+      <div class="maincolumns columns is-desktop">
+        <div class="column is-10 is-offset-1 has-background-white" style="border-radius: 25px;">
+          <div class="tabs is-centered">
+            <ul>
+              <li class="is-active" onclick="showBest()">
+                <a>
+                  <span class="icon is-small"><i class="fas fa-image" aria-hidden="true"></i></span>
+                  <span>Today</span>
+                </a>
+              </li>
+              <li onclick="showThread()">
+                <a>
+                  <span class="icon is-small"><i class="fas fa-music" aria-hidden="true"></i></span>
+                  <span>Upcoming</span>
+                </a>
+              </li>
+              <li onclick="showBest()">
+                <a>
+                  <span class="icon is-small"><i class="fas fa-image" aria-hidden="true"></i></span>
+                  <span>Week</span>
+                </a>
+              </li>
+              <li onclick="showBest()">
+                <a>
+                  <span class="icon is-small"><i class="fas fa-image" aria-hidden="true"></i></span>
+                  <span>Month</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+
+</html>
