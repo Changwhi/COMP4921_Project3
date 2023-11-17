@@ -8,25 +8,25 @@
         <div class="column is-10 is-offset-1 has-background-white" style="border-radius: 25px;">
           <div class="tabs is-centered">
             <ul>
-              <li class="is-active" onclick="showBest()">
+              <li class="is-active" onclick="displayComponent({'number': 0, 'name': '.today'})">
                 <a>
                   <span class="icon is-small"><i class="fas fa-image" aria-hidden="true"></i></span>
                   <span>Today</span>
                 </a>
               </li>
-              <li onclick="showThread()">
+              <li onclick="displayComponent({'number': 1, 'name': '.upcoming'})">
                 <a>
                   <span class="icon is-small"><i class="fas fa-music" aria-hidden="true"></i></span>
                   <span>Upcoming</span>
                 </a>
               </li>
-              <li onclick="showBest()">
+              <li onclick="displayComponent({'number': 2, 'name': '.week'})">
                 <a>
                   <span class="icon is-small"><i class="fas fa-image" aria-hidden="true"></i></span>
                   <span>Week</span>
                 </a>
               </li>
-              <li onclick="showBest()">
+              <li onclick="displayComponent({'number': 3, 'name': '.month'})">
                 <a>
                   <span class="icon is-small"><i class="fas fa-image" aria-hidden="true"></i></span>
                   <span>Month</span>
@@ -34,9 +34,73 @@
               </li>
             </ul>
           </div>
+          <!-- Tabs -->
+
+
+          <div class='today'>
+            <div class='column has-text-centered'>
+              <h1 class="title">Best Topic</h1>
+            </div>
+            <div class='columns'>
+            </div>
+          </div>
+
+
+          <div class='upcoming' style='display: none'>
+            <div class='column has-text-centered'>
+              <h1 class="title">upcoming</h1>
+            </div>
+            <div class='columns'>
+
+
+            </div>
+          </div>
+
+
+          <div class='week' style='display: none'>
+            <div class='column has-text-centered'>
+              <h1 class="title">week</h1>
+            </div>
+            <div class='columns'>
+
+
+            </div>
+          </div>
+
+
+
+          <div class='month' style='display: none'>
+            <div class='column has-text-centered'>
+              <h1 class="title">month</h1>
+            </div>
+            <div class='columns'>
+
+
+            </div>
+          </div>
+
+
         </div>
-      </div>
     </section>
+
+
+    <script>
+      function displayComponent(params) {
+        console.log(params.number)
+        console.log(params.name)
+        const components = [".today", ".upcoming", ".week", ".month"]
+        for (let i = 0; i < components.length; i++) {
+          document.querySelectorAll('li')[i].classList.remove('is-active');
+          document.querySelector(components[i]).style.display = 'none'
+          console.log(components[i])
+        }
+        document.querySelectorAll('li')[params.number].classList.add('is-active');
+        document.querySelector(params.name).style.display = "block";
+      }
+
+    </script>
+
+
   </body>
 
 </html>
