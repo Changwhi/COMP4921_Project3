@@ -39,7 +39,18 @@
 
           <div class='today'>
             <div class='column has-text-centered'>
-              <h1 class="title">Best Topic</h1>
+              <button class="button">
+                <span class="icon is-small">
+                  <i class="fas fa-arrow-circle-left"></i>
+                </span>
+              </button>
+              <h1 class="title" style="display: inline;">Nov 9 2023</h1>
+              <button class="button">
+                <span class="icon is-small">
+                  <i class="fas fa-arrow-circle-right"></i>
+                </span>
+              </button>
+              <%- include("today.ejs") %>
             </div>
             <div class='columns'>
             </div>
@@ -48,7 +59,18 @@
 
           <div class='upcoming' style='display: none'>
             <div class='column has-text-centered'>
-              <h1 class="title">upcoming</h1>
+              <button class="button">
+                <span class="icon is-small">
+                  <i class="fas fa-arrow-circle-left"></i>
+                </span>
+              </button>
+              <h1 class="title" style="display: inline;">Nov 10 2023</h1>
+              <button class="button">
+                <span class="icon is-small">
+                  <i class="fas fa-arrow-circle-right"></i>
+                </span>
+              </button>
+              <%- include("upcoming.ejs") %>
             </div>
             <div class='columns'>
 
