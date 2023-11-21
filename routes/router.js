@@ -43,8 +43,12 @@ router.get("/", async (req, res) => {
   // res.render("index", { isLoggedIn: isLoggedIn })
   res.render("index", { isLoggedIn: false })
   return;
-
 });
+
+router.get("/friends", async (req, res) => {
+  res.render("friends", {isLoggedIn: false})
+  return; 
+})
 
 
 
