@@ -2,6 +2,10 @@
 <html>
 <%- include("templates/header") %>
 
+  <head>
+    <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
+  </head>
+
   <body>
     <section class="section has-background-light">
       <div class="maincolumns columns is-desktop">
@@ -39,7 +43,18 @@
 
           <div class='today'>
             <div class='column has-text-centered'>
-              <%- include("components/today") %>
+              <button class="button">
+                <span class="icon is-small">
+                  <i class="fas fa-arrow-circle-left"></i>
+                </span>
+              </button>
+              <h1 class="title" style="display: inline;">Nov 9 2023</h1>
+              <button class="button">
+                <span class="icon is-small">
+                  <i class="fas fa-arrow-circle-right"></i>
+                </span>
+              </button>
+              <%- include("today.ejs") %>
             </div>
             <div class='columns'>
             </div>
@@ -48,7 +63,18 @@
 
           <div class='upcoming' style='display: none'>
             <div class='column has-text-centered'>
-              <h1 class="title">upcoming</h1>
+              <button class="button">
+                <span class="icon is-small">
+                  <i class="fas fa-arrow-circle-left"></i>
+                </span>
+              </button>
+              <h1 class="title" style="display: inline;">Nov 10 2023</h1>
+              <button class="button">
+                <span class="icon is-small">
+                  <i class="fas fa-arrow-circle-right"></i>
+                </span>
+              </button>
+              <%- include("upcoming.ejs") %>
             </div>
             <div class='columns'>
             </div>
@@ -58,6 +84,7 @@
           <div class='week' style='display: none'>
             <div class='column has-text-centered'>
               <h1 class="title">week</h1>
+              <% -include("weekly.ejs") %>
             </div>
             <div class='columns'>
             </div>
@@ -74,6 +101,8 @@
         </div>
     </section>
 
+    <script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script>
+
     <script>
       function displayComponent(params) {
         console.log(params.number)
@@ -87,8 +116,6 @@
         document.querySelector(params.name).style.display = "block";
       }
     </script>
-
-
   </body>
 
 </html>
