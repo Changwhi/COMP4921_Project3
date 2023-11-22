@@ -39,7 +39,7 @@
 
           <div class='today'>
             <div class='column has-text-centered'>
-              <h1 class="title">Best Topic</h1>
+              <%- include("components/today") %>
             </div>
             <div class='columns'>
             </div>
@@ -51,8 +51,6 @@
               <h1 class="title">upcoming</h1>
             </div>
             <div class='columns'>
-
-
             </div>
           </div>
 
@@ -62,11 +60,8 @@
               <h1 class="title">week</h1>
             </div>
             <div class='columns'>
-
-
             </div>
           </div>
-
 
 
           <div class='month' style='display: none'>
@@ -74,15 +69,10 @@
               <h1 class="title">month</h1>
             </div>
             <div class='columns'>
-
-
             </div>
           </div>
-
-
         </div>
     </section>
-
 
     <script>
       function displayComponent(params) {
@@ -92,12 +82,10 @@
         for (let i = 0; i < components.length; i++) {
           document.querySelectorAll('li')[i].classList.remove('is-active');
           document.querySelector(components[i]).style.display = 'none'
-          console.log(components[i])
         }
         document.querySelectorAll('li')[params.number].classList.add('is-active');
         document.querySelector(params.name).style.display = "block";
       }
-
     </script>
 
 
