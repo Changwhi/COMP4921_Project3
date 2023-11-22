@@ -1,51 +1,57 @@
 <!DOCTYPE html>
 <html>
 
-<%- include("templates/header") %>
+<head>
+  <link rel="stylesheet" href="bulma.min.css" />
+  <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script>
 
-  <body>
+</head>
 
-    <section class="section">
-      <div class="maincolumns columns is-desktop is-vcentered">
-        <div class="column is-4 is-offset-4 has-background-light is-light container" style="border-radius: 25px;">
-          <!-- Logging in with creds -->
-          <form action="/loggingin" method="post">
-            <div class="field">
-              <p class="control has-icons-left has-icons-right">
-                <input class="input" name="email" type="email" placeholder="Email" />
-                <span class="icon is-small is-left">
-                  <i class="fas fa-envelope"></i>
-                </span>
+<body>
+
+  <section class="section">
+    <div class="maincolumns columns is-desktop is-vcentered">
+      <div class="column is-4 is-offset-4 has-background-light is-light container" style="border-radius: 25px;">
+        <!-- Logging in with creds -->
+        <form action="/loggingin" method="post">
+          <div class="field">
+            <p class="control has-icons-left has-icons-right">
+              <input class="input" name="email" type="email" placeholder="Email" />
+              <span class="icon is-small is-left">
+                <i class="fas fa-envelope"></i>
+              </span>
+            </p>
+          </div>
+          <div class="field">
+            <p class="control has-icons-left">
+              <input class="input" name="password" type="password" placeholder="Password" />
+              <span class="icon is-small is-left">
+                <i class="fas fa-lock"></i>
+              </span>
+            </p>
+            <% if (locals.message) {%>
+              <p class="help is-danger">
+                <%= message %>
               </p>
+              <% }%>
+          </div>
+          <div class="columns is-mobile ">
+            <div class="column is-3">
+              <button class="button is-light">Login</button>
             </div>
-            <div class="field">
-              <p class="control has-icons-left">
-                <input class="input" name="password" type="password" placeholder="Password" />
-                <span class="icon is-small is-left">
-                  <i class="fas fa-lock"></i>
-                </span>
-              </p>
-              <% if (locals.message) {%>
-                <p class="help is-danger">
-                  <%= message %>
-                </p>
-                <% }%>
+            <div class="column">
+              <a href="/signup" class="button is-primary">
+                <strong>Sign up</strong>
+              </a>
             </div>
-            <div class="columns is-mobile ">
-              <div class="column is-3">
-                <button class="button is-light">Login</button>
-              </div>
-              <div class="column">
-                <a href="/signup" class="button is-primary">
-                  <strong>Sign up</strong>
-                </a>
-              </div>
-            </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
-      </div>
-    </section>
-  </body>
+    </div>
+    </div>
+  </section>
+</body>
 
 </html>
