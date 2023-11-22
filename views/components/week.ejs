@@ -14,7 +14,7 @@
                     <div class="card" style="">
                         <div class="card-content">
                             <div class="content">
-                                <div id="monthcalendar" style="height: 600px;"></div>
+                                <div id="weekcalendar" style="height: 600px;"></div>
                             </div>
                         </div>
                     </div>
@@ -22,13 +22,13 @@
         </section>
 
         <script>
-            const MonthCalendar = tui.Calendar;
+            const WeekCalendar = tui.Calendar;
         </script>
         <script>
             document.addEventListener("DOMContentLoaded", (event) => {
-                const container = document.getElementById('monthcalendar');
+                const container = document.getElementById('weekcalendar');
                 const options = {
-                    defaultView: 'month',
+                    defaultView: 'week',
                     timezone: {
                         zones: [
                             {
@@ -51,13 +51,13 @@
                     ],
                 };
 
-                const monthCalender = new MonthCalendar(container, options);
-                monthCalender.setOptions({
+                const weekCalendar = new WeekCalendar(container, options);
+                weekCalendar.setOptions({
                     week: {
                         taskView: false,
                     },
                 });
-                monthCalender.createEvents([
+                weekCalendar.createEvents([
                     {
                         id: 'event1',
                         calendarId: 'cal2',

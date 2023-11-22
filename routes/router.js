@@ -75,9 +75,9 @@ router.get("/friends", async (req, res) => {
 
 
 
-router.get("/month", async (req,res) => {
+router.get("/week", async (req,res) => {
   const isLoggedIn = isValidSession(req)
-  res.render('./components/month', {isLoggedIn: isLoggedIn})
+  res.render('./components/week', {isLoggedIn: isLoggedIn})
 })
 
 
