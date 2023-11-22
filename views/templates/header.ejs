@@ -12,28 +12,58 @@
       </a>
     </div>
 
-    <div id="navbarBasicExample" class="navbar-menu is-active">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+    </div>
+
+    <div id="navbarBasicExample" class="navbar-menu">
       <div class="navbar-start">
-      </div>
-    </div>
+        <a class="navbar-item">
+          Home
+        </a>
 
-    <div class="navbar-end">
-      <div class="navbar-item">
-        <div class="buttons">
+        <a class="navbar-item">
+          Calendar
+        </a>
 
-          <% if (isLoggedIn) { %>
-            <a href="/logout" class="button is-primary">
-              <strong>Log Out</strong>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link">
+            More
+          </a>
+
+          <div class="navbar-dropdown">
+            <a href="/friends" class="navbar-item">
+              Friends list
             </a>
-            <% } else { %>
-              <a href="/signup" class="button is-primary">
-                <strong>Sign up</strong>
-              </a>
-              <a class="button is-light" href="/login"> Log in </a>
-              <% } %>
-        </div>
 
+            <hr class="navbar-divider">
+            <a class="navbar-item">
+              Schedule Finder
+            </a>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="buttons">
+
+            <% if (isLoggedIn) { %>
+              <a href="/logout" class="button is-primary">
+                <strong>Log Out</strong>
+              </a>
+              <% } else { %>
+                <a href="/signup" class="button is-primary">
+                  <strong>Sign up</strong>
+                </a>
+                <a class="button is-light" href="/login"> Log in </a>
+                <% } %>
+          </div>
+
+        </div>
+      </div>
   </nav>
 </head>

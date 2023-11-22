@@ -26,37 +26,37 @@ var mongoStore = MongoStore.create({
   },
 });
 
-// router.use(
-//   session({
-//     secret: node_session_secret,
-//     store: mongoStore,
-//     saveUninitialized: false,
-//     resave: true,
-//   })
-// );
+router.use(
+  session({
+    secret: node_session_secret,
+    store: mongoStore,
+    saveUninitialized: false,
+    resave: true,
+  })
+);
 
 
-// function isValidSession(req) {
-//   console.log("isValidSession")
-//   if (req.session.authenticated) {
-//     return true;
-//   }
-//   return false;
-// }
+function isValidSession(req) {
+  console.log("isValidSession")
+  if (req.session.authenticated) {
+    return true;
+  }
+  return false;
+}
 
-// function sessionValidation(req, res, next) {
-//   console.log("hit sessionValidation")
-//   if (!isValidSession(req)) {
-//     res.locals.isLoggedIn = req.session.authenticated === true;
-//     req.session.destroy();
-//     res.redirect('/login');
-//     return;
-//   }
-//   else {
-//     res.locals.isLoggedIn = req.session.authenticated === true;
-//     next();
-//   }
-// }
+function sessionValidation(req, res, next) {
+  console.log("hit sessionValidation")
+  if (!isValidSession(req)) {
+    res.locals.isLoggedIn = req.session.authenticated === true;
+    req.session.destroy();
+    res.redirect('/login');
+    return;
+  }
+  else {
+    res.locals.isLoggedIn = req.session.authenticated === true;
+    next();
+  }
+}
 
 
 router.get("/", async (req, res) => {
@@ -69,8 +69,8 @@ router.get("/", async (req, res) => {
 
 router.get("/friends", async (req, res) => {
   const isLoggedIn = isValidSession(req)
-  res.render("friends", {isLoggedIn: isLoggedIn})
-  return; 
+  res.render("friends", { isLoggedIn: isLoggedIn })
+  return;
 })
 
 
