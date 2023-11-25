@@ -41,69 +41,34 @@
 
             </ul>
           </div>
+
+
+
+
+
           <!-- Tabs -->
 
+          <%- include("components/friends/friend") %>
 
-          <div class='friend'>
-            <div class="columns is-mobile">
-              <div class="column is-three-fifths is-offset-one-fifth">
-                <div class="box">
-                  Static user 1
+
+            <%- include("components/friends/pending") %>
+
+
+
+              <div class='request' style='display: none'>
+                <div class="columns is-mobile">
+                  <div class="column is-three-fifths is-offset-one-fifth">
+                    <div class="box">
+                      Static user 1
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div class="columns is-mobile">
-              <div class="column is-three-fifths is-offset-one-fifth">
-                <div class="box">
-                  Static user 2
-                </div>
-              </div>
-            </div>
-
-
-            <div class="columns is-mobile">
-              <div class="column is-three-fifths is-offset-one-fifth">
-                <div class="box">
-                  Static user 3
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class='pending' style='display: none'>
-            <div class="columns is-mobile">
-              <div class="column is-three-fifths is-offset-one-fifth">
-                <div class="box">
-                  static user 1
-                </div>
-              </div>
-            </div>
-
-            <div class="columns is-mobile">
-              <div class="column is-three-fifths is-offset-one-fifth">
-                <div class="box">
-                  Static user 2
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-          <div class='request' style='display: none'>
-            <div class="columns is-mobile">
-              <div class="column is-three-fifths is-offset-one-fifth">
-                <div class="box">
-                  Static user 1
-                </div>
-              </div>
-            </div>
-          </div>
 
         </div>
     </section>
 
-    <!-- firends -->
+    <!-- add firend -->
     <div id="modal-js-example" class="modal">
       <div class="modal-background"></div>
 
