@@ -4,7 +4,7 @@ const session = require("express-session");
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
-
+const moment = require('moment');
 
 const db_users = include('database/users');
 const db_events = include('database/events')
@@ -65,6 +65,10 @@ router.get("/", async (req, res) => {
   console.log("idex page hit")
   const isLoggedIn = isValidSession(req)
   let calendar_data = await db_events.getEvents({user_id: req.session.userID});
+  for (let i = 0; i < calendar_data.length; i++) {
+    calendar_data[i].start = moment.utc(calendar_data[i].start).local().format('YYYY-MM-DD HH:mm:ss');
+    calendar_data[i].end = moment.utc(calendar_data[i].end).local().format('YYYY-MM-DD HH:mm:ss')
+    }
     if (calendar_data) {
      res.render("index", {isLoggedIn: isLoggedIn, calendar_data: calendar_data})
     return;
