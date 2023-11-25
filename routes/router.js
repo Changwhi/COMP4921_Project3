@@ -116,7 +116,7 @@ router.post("/loggingin", async (req, res) => {
   var email = req.body.email;
   var password = req.body.password;
   var users = await db_users.getUsers();
-  let user;
+  let user = null;
 
   for (let i = 0; i < users.length; i++) {
     if (users[i].email == email) {
@@ -171,6 +171,8 @@ router.post("/loggingin", async (req, res) => {
     req.session.authenticated = false;
     res.redirect('/login');
   }
+
+
 });
 
 
@@ -228,14 +230,14 @@ router.get("/friends", sessionValidation, async (req, res) => {
   const isInvalidFriend = req.query.invalidFriend;
   console.log(isFriendAdded)
   console.log(isInvalidFriend)
-  res.render("friends", { isAdded: isFriendAdded, isInvalidFriend: isInvalidFriend, isLoggedIn: isLoggedIn })
+  res.render("friends", { isFriendAdded: isFriendAdded, isInvalidFriend: isInvalidFriend, isLoggedIn: isLoggedIn })
   return;
 })
 
 router.post('/friends/add', sessionValidation, async (req, res) => {
   try {
     const target_name = req.body.target_name;
-    const current_user_id = req.session.user_ID;
+    const current_user_id = req.session.userID;
     const users = await db_users.getUsers();
     let target_user = null;
 
@@ -247,9 +249,15 @@ router.post('/friends/add', sessionValidation, async (req, res) => {
     }
     if (target_user) {
       const response = await db_friend.addFriend({ user_id: current_user_id, friend_id: target_user.user_id })
-      res.redirect("/friends/?added=true")
+      console.log("here " + response)
+      if (response) {
+        res.redirect("/friends/?added=true")
+      } else {
+        res.redirect("/friends/?invalidFriend=Friend already in your friend list ")
+      }
+
     } else {
-      res.redirect("/friends/?invalidFriend=true")
+      res.redirect("/friends/?invalidFriend=Friend does not exist")
     }
     return
   } catch (err) {

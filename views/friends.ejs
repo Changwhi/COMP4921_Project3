@@ -170,7 +170,7 @@
       </div>
       <%}%>
 
-        <% if (locals.isInvalidFriend==="true" ) { %>
+        <% if (locals.isInvalidFriend) { %>
           <div id="modal-js-example" class="modal is-active">
             <div class="modal-background"></div>
 
@@ -182,7 +182,8 @@
                   </p>
 
                   <div class='column has-text-centered'>
-                    <h3 class="body">Something wrong, Please check friend's Name again.</h1>
+                    <h3 class="body">
+                      <%= isInvalidFriend%>, Please try again.</h1>
                   </div>
                 </article>
               </div>
