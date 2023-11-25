@@ -1,6 +1,6 @@
 <head>
   <meta charset="utf-8" />
-  <link rel="stylesheet" href="bulma.min.css" />
+  <link rel="stylesheet" href="/bulma.min.css" />
   <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
   <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -10,7 +10,7 @@
   <nav class="navbar" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
-        <img src="logo.png" width="172" height="88" />
+        <img src="/logo.png" width="172" height="88" />
       </a>
     </div>
 
@@ -53,7 +53,7 @@
         <div class="navbar-item">
           <div class="buttons">
 
-            <% if (isLoggedIn) { %>
+            <% if (locals.isLoggedIn) { %>
               <a href="/logout" class="button is-primary">
                 <strong>Log Out</strong>
               </a>
