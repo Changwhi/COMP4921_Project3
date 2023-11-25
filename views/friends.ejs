@@ -109,37 +109,87 @@
 
       <div class="modal-content">
         <div class="box">
-          <article class="panel is-primary">
-            <p class="panel-heading">
-              Add Friend
-            </p>
-
-            <div class='column has-text-centered'>
-              <h3 class="body">Search your friend by their ID</h1>
-            </div>
-
-            <div class="panel-block">
-              <p class="control has-icons-left">
-                <input class="input is-primary" type="text" placeholder="Search" id="friend-search">
-                <span class="icon is-left">
-                  <i class="fas fa-search" aria-hidden="true"></i>
-                </span>
+          <form action="/friends/add" method="post">
+            <article class="panel is-primary">
+              <p class="panel-heading">
+                Add Friend
               </p>
-              <button class="button is-primary" id="send-request">Send Request</button>
-            </div>
-            <a class="panel-block is-active">
-              <span class="panel-icon">
-                <i class="fas fa-book" aria-hidden="true"></i>
-              </span>
-              bulma
-            </a>
-          </article>
+
+              <div class='column has-text-centered'>
+                <h3 class="body">Search your friend by their ID</h1>
+              </div>
+
+              <div class="panel-block">
+                <p class="control has-icons-left">
+                  <input name="target_name" class="input is-primary" type="text" placeholder="Search"
+                    id="friend-search">
+                  <span class="icon is-left">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                  </span>
+                </p>
+                <button class="button is-primary" id="send-request">Send Request</button>
+              </div>
+              <a class="panel-block is-active">
+                <span class="panel-icon">
+                  <i class="fas fa-book" aria-hidden="true"></i>
+                </span>
+                bulma
+              </a>
+            </article>
+          </form>
 
         </div>
 
         <button class="modal-close is-large" aria-label="close"></button>
       </div>
+    </div>
 
+    <!-- after adding friend -->
+
+    <% if (locals.isFriendAdded==="true" ) { %>
+      <div id="modal-js-example" class="modal is-active">
+        <div class="modal-background"></div>
+
+        <div class="modal-content">
+          <div class="box">
+            <article class="panel is-primary">
+              <p class="panel-heading">
+                Add Friend
+              </p>
+
+              <div class='column has-text-centered'>
+                <h3 class="body">Sended Friend Request Successfully</h1>
+              </div>
+
+            </article>
+
+          </div>
+
+          <button class="modal-close is-large" aria-label="close"></button>
+        </div>
+      </div>
+      <%}%>
+
+        <% if (locals.isInvalidFriend==="true" ) { %>
+          <div id="modal-js-example" class="modal is-active">
+            <div class="modal-background"></div>
+
+            <div class="modal-content">
+              <div class="box">
+                <article class="panel is-primary">
+                  <p class="panel-heading">
+                    Add Friend
+                  </p>
+
+                  <div class='column has-text-centered'>
+                    <h3 class="body">Something wrong, Please check friend's Name again.</h1>
+                  </div>
+                </article>
+              </div>
+              <button class="modal-close is-large" aria-label="close"></button>
+            </div>
+          </div>
+          <%}%>
 
   </body>
   <script>
@@ -199,17 +249,14 @@
           closeAllModals();
         }
       });
-    });
 
-    document.addEventListener('DOMContentLoaded', () => {
-
-      // Function to handle Send Request button click
       const sendRequestButton = document.getElementById('send-request');
       sendRequestButton.addEventListener('click', () => {
         const searchInput = document.getElementById('friend-search').value;
         console.log(searchInput); // Print the input value to the console
-      });
+      })
     });
+
 
   </script>
 
