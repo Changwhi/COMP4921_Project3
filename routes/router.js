@@ -265,8 +265,20 @@ router.post('/friends/add', sessionValidation, async (req, res) => {
 
     // Add friend logic
     if (target_user) {
-      const response = await db_friend.addFriend({ status: 0, user_id: current_user_id, friend_id: target_user.user_id });
+      const checkRequest = await db_friend.retrieveSentRequest({ user_id: current_user_id })
 
+      for (let i = 0; i < checkRequest[0].length; i++) {
+        if (checkRequest[0][i].user_id == target_user.user_id) {
+          const response1 = await db_friend.acceptFriendRequest({ user_id: current_user_id, friend_id: target_user.user_id })
+          const response2 = await db_friend.addFriend({ status: 1, user_id: current_user_id, friend_id: target_user.user_id });
+          // console.log("chek" + checkRequest[0][i])
+          // console.log("target" + target_user.user_id)
+          // console.log("result" + JSON.stringify(response))
+          res.redirect("/friends/?added=true");
+          return;
+        }
+      }
+      const response = await db_friend.addFriend({ status: 0, user_id: current_user_id, friend_id: target_user.user_id });
       if (response) {
         res.redirect("/friends/?added=true");
         return; // Exit the function
