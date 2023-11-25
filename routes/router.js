@@ -225,13 +225,22 @@ router.post("/submitUser", async (req, res) => {
 });
 
 router.get("/friends", sessionValidation, async (req, res) => {
-  const isLoggedIn = isValidSession(req)
-  const isFriendAdded = req.query.added;
-  const isInvalidFriend = req.query.invalidFriend;
-  console.log(isFriendAdded)
-  console.log(isInvalidFriend)
-  res.render("friends", { isFriendAdded: isFriendAdded, isInvalidFriend: isInvalidFriend, isLoggedIn: isLoggedIn })
-  return;
+  try {
+    const isLoggedIn = isValidSession(req)
+    const user_id = req.session.userID;
+    console.log("myID" + user_id)
+    const isFriendAdded = req.query.added;
+    const isInvalidFriend = req.query.invalidFriend;
+    const response1 = await db_friend.retrieveFriend({ user_id: user_id })
+    const response2 = await db_friend.retrieveSentRequest({ user_id: user_id })
+    res.render("friends", { sentRequest: response2[0], friend_list: response1[0], isFriendAdded: isFriendAdded, isInvalidFriend: isInvalidFriend, isLoggedIn: isLoggedIn })
+    return;
+  } catch (err) {
+    console.log("Error /friends:" + err);
+    res.render('error', { message: `Failed render friend page : ${err}` })
+    return;
+
+  }
 })
 
 router.post('/friends/add', sessionValidation, async (req, res) => {
@@ -247,25 +256,71 @@ router.post('/friends/add', sessionValidation, async (req, res) => {
         break;
       }
     }
-    if (target_user) {
-      const response = await db_friend.addFriend({ user_id: current_user_id, friend_id: target_user.user_id })
-      console.log("here " + response)
-      if (response) {
-        res.redirect("/friends/?added=true")
-      } else {
-        res.redirect("/friends/?invalidFriend=Friend already in your friend list ")
-      }
 
-    } else {
-      res.redirect("/friends/?invalidFriend=Friend does not exist")
+    // Prevent adding oneself as a friend
+    if (target_user && current_user_id === target_user.user_id) {
+      res.redirect("/friends/?invalidFriend=You cannot add yourself in your friend list");
+      return; // Make sure to exit the function here
     }
-    return
+
+    // Add friend logic
+    if (target_user) {
+      const response = await db_friend.addFriend({ status: 0, user_id: current_user_id, friend_id: target_user.user_id });
+
+      if (response) {
+        res.redirect("/friends/?added=true");
+        return; // Exit the function
+      } else {
+        res.redirect("/friends/?invalidFriend=Friend already in your friend list");
+        return; // Exit the function
+      }
+    } else {
+      res.redirect("/friends/?invalidFriend=Friend does not exist");
+      return; // Exit the function
+    }
   } catch (err) {
     console.log("Error /friends/add :" + err);
-    res.render('error', { message: `Failed to add friend : ${err}` })
-    return;
+    res.render('error', { message: `Failed to add friend : ${err}` });
+    return; // Exit the function
   }
-})
+});
+
+
+
+router.post('/friends/add/accept', sessionValidation, async (req, res) => {
+  try {
+    const user_id = req.session.userID;
+    const friend_id = req.body.friend_id;
+    const users = await db_users.getUsers();
+    console.log("user_id" + user_id)
+    console.log("friend_id" + friend_id)
+
+    let target_user = null;
+
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].user_id == friend_id) {
+        target_user = users[i];
+        break;
+      }
+    }
+    const response = await db_friend.acceptFriendRequest({ user_id: user_id, friend_id: friend_id })
+    console.log("retrieved data" + JSON.stringify(target_user))
+    if (response) {
+      const response = await db_friend.addFriend({ status: 1, user_id: user_id, friend_id: friend_id });
+      res.redirect("/friends/?added=true");
+      return
+    }
+    else {
+      res.redirect("/friends/?invalidFriend=Failed to accept friend");
+      return; // Exit the function
+    }
+
+  } catch (err) {
+    console.log("Error /friends/add :" + err);
+    res.render('error', { message: `Failed to accept request : ${err}` });
+    return; // Exit the function
+  }
+});
 
 
 

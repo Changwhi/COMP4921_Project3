@@ -1,20 +1,32 @@
 const mySqlDatabase = include('databaseConnectionSQL');
 
 async function addFriend(data) {
-  let createSQL = `
+  let firstSQL = `
     INSERT INTO friendList (user_id, friend_id, friend_status)
-    value (:user_id, :friend_id, :false)
+    value (:user_id, :friend_id, :status)
 `;
+  //   let secondSQL = `
+  //     INSERT INTO friendList (user_id, friend_id, friend_status)
+  //     value (:user_id, :friend_id, :false)
+  // `;
 
-  let params = {
+
+  let params1 = {
     user_id: data.user_id,
     friend_id: data.friend_id,
-    false: false,
+    status: data.status,
   };
 
+
+  // let params2 = {
+  //   user_id: data.friend_id,
+  //   friend_id: data.user_id,
+  //   false: false,
+  // };
   try {
-    const result = await mySqlDatabase.query(createSQL, params);
-    console.log(result)
+    const result1 = await mySqlDatabase.query(firstSQL, params1);
+    const result2 = await mySqlDatabase.query(secondSQL, params2);
+    console.log(result1)
     return true;
   } catch (err) {
     console.log("Error: addFriend - " + err)
@@ -40,7 +52,7 @@ where f.user_id = ?
   }
 
 }
-async function sentRequest(data) {
+async function retrieveSentRequest(data) {
   let preSQLStatement = `
       select * 
 from friendList as f
@@ -61,5 +73,25 @@ and f.friend_status = 0;
 }
 
 
+async function acceptFriendRequest(data) {
+  let preSQLStatement = `
+    update friendList 
+    set friend_status = 1
+    where friendList.user_id = :friend_id and friendList.friend_id = :user_id;
+`
+  let params = {
+    user_id: data.user_id,
+    friend_id: data.friend_id,
+  }
+  try {
+    const result = await mySqlDatabase.query(preSQLStatement, params)
+    console.log("result of test" + JSON.stringify(result))
+    return true;
+  } catch (err) {
+    console.log("failed to accept friend :" + err)
+    return false
+  }
 
-module.exports = { addFriend, retrieveFriend, sentRequest }
+}
+
+module.exports = { addFriend, retrieveFriend, retrieveSentRequest, acceptFriendRequest }

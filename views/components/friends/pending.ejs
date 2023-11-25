@@ -1,17 +1,25 @@
-<%if (locals.friend_list) { %>
+<%if (locals.sentRequest) { %>
   <% let i=0; %>
     <div class='pending' style='display: none'>
-      <% for (i; i < friend_list.length; i++) { %>
-        <% if (friend_list[i].friend_status==0) {%>
+      <% for (i; i < sentRequest.length; i++) { %>
 
-          <div class="columns is-mobile">
-            <div class="column is-three-fifths is-offset-one-fifth">
-              <div class="box">
-                <%= friend_list[i].name%>
+        <div class="columns is-mobile">
+          <div class="column is-three-fifths is-offset-one-fifth">
+            <div class="box">
+              <div class="columns">
+                <div class="column is-8">
+                  <%= sentRequest[i].name%>
+                </div>
+                <div class="column is-4 has-text-right">
+                  <form action="/friends/add/accept" method="post">
+                    <input type="hidden" name="friend_id" value="<%= sentRequest[i].user_id%>" />
+                    <button type="submit" class="button is-small">Accept</button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
-          <%}%>
-            <%}%>
+        </div>
+        <%}%>
     </div>
     <%}%>
