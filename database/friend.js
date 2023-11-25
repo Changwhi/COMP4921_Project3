@@ -22,4 +22,44 @@ async function addFriend(data) {
   }
 }
 
-module.exports = { addFriend }
+async function retrieveFriend(data) {
+  let preSQLStatement = `
+      select * 
+from friendList as f
+join user as u
+on u.user_id = f.friend_id
+where f.user_id = ?
+`
+  let params = [data.user_id]
+  console.log("UID" + params)
+  try {
+    const result = await mySqlDatabase.query(preSQLStatement, params)
+    return result;
+  } catch (err) {
+    return err
+  }
+
+}
+async function sentRequest(data) {
+  let preSQLStatement = `
+      select * 
+from friendList as f
+join user as u
+on u.user_id = f.user_id
+where f.friend_id = ? 
+and f.friend_status = 0;
+`
+  let params = [data.user_id]
+  console.log("UID" + params)
+  try {
+    const result = await mySqlDatabase.query(preSQLStatement, params)
+    return result;
+  } catch (err) {
+    return err
+  }
+
+}
+
+
+
+module.exports = { addFriend, retrieveFriend, sentRequest }
