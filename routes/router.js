@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 const db_users = include('database/users');
+const db_friend = include('database/friend');
 
 const saltRounds = 12;
 const expireTime = 60 * 60 * 1000;
@@ -14,6 +15,9 @@ const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 const node_session_secret = process.env.NODE_SESSION_SECRET;
+
+
+
 
 const passwordSchema = Joi.object({
   password: Joi.string().pattern(/(?=.*[a-z])/).pattern(/(?=.*[A-Z])/).pattern(/(?=.*[!@#$%^&*])/).pattern(/(?=.*[0-9])/).min(12).max(50).required()
@@ -67,17 +71,11 @@ router.get("/", async (req, res) => {
   return;
 });
 
-router.get("/friends", async (req, res) => {
+
+
+router.get("/week", async (req, res) => {
   const isLoggedIn = isValidSession(req)
-  res.render("friends", { isLoggedIn: isLoggedIn })
-  return;
-})
-
-
-
-router.get("/week", async (req,res) => {
-  const isLoggedIn = isValidSession(req)
-  res.render('./components/week', {isLoggedIn: isLoggedIn})
+  res.render('./components/week', { isLoggedIn: isLoggedIn })
 })
 
 
@@ -176,7 +174,7 @@ router.post("/loggingin", async (req, res) => {
 });
 
 
- // User creation
+// User creation
 router.post("/submitUser", async (req, res) => {
   var email = req.body.email;
   var password = req.body.password;
@@ -223,6 +221,44 @@ router.post("/submitUser", async (req, res) => {
     }
   }
 });
+
+router.get("/friends", sessionValidation, async (req, res) => {
+  const isLoggedIn = isValidSession(req)
+  const isFriendAdded = req.query.added;
+  const isInvalidFriend = req.query.invalidFriend;
+  console.log(isFriendAdded)
+  console.log(isInvalidFriend)
+  res.render("friends", { isAdded: isFriendAdded, isInvalidFriend: isInvalidFriend, isLoggedIn: isLoggedIn })
+  return;
+})
+
+router.post('/friends/add', sessionValidation, async (req, res) => {
+  try {
+    const target_name = req.body.target_name;
+    const current_user_id = req.session.user_ID;
+    const users = await db_users.getUsers();
+    let target_user = null;
+
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].name == target_name) {
+        target_user = users[i];
+        break;
+      }
+    }
+    if (target_user) {
+      const response = await db_friend.addFriend({ user_id: current_user_id, friend_id: target_user.user_id })
+      res.redirect("/friends/?added=true")
+    } else {
+      res.redirect("/friends/?invalidFriend=true")
+    }
+    return
+  } catch (err) {
+    console.log("Error /friends/add :" + err);
+    res.render('error', { message: `Failed to add friend : ${err}` })
+    return;
+  }
+})
+
 
 
 module.exports = router;
