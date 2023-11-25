@@ -1,90 +1,66 @@
 <!DOCTYPE html>
 <html>
-<!-- <%- include("../templates/header") %> -->
 
-    <head>
-        <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
-        <script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script>
-    </head>
+<head>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+</head>
 
-    <body>
-        <section class="section has-background-light">
-            <div class="maincolumns columns is-desktop">
-                <div class="column is-10 is-offset-1 has-background-white" style="border-radius: 25px;">
-                    <div class="card" style="">
-                        <div class="card-content">
-                            <div class="content">
-                                <div id="monthcalendar" style="height: 600px;"></div>
-                            </div>
-                        </div>
+<body>
+    <section class="section has-background-light">
+        <div class="maincolumns columns is-desktop">
+            <div class="column is-10 is-offset-1 has-background-white" style="border-radius: 25px;">
+                <div class="card">
+                    <div class="card-content" style="max-width: 1100px;">
+                        <div id='calendar' style="width: 100%; max-width: 1100px; max-height: 1100px; margin:10px auto;"></div>
                     </div>
                 </div>
-        </section>
+            </div>
+        </div>
+    </section>
+    <script>
+        const arrayData = JSON.parse('<%- JSON.stringify(locals.calendar_data)%>')
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(function () {
+            let calendarEl = document.getElementById('calendar');
+            let storedEvents = [];
+            let calendar = new FullCalendar.Calendar(calendarEl, {
+                timeZone: 'UTC',
+                initialView: 'dayGridMonth',
+                events: arrayData,
+                editable: true,
+                selectable: true,
+                dateClick: (info) => {
+                    let eventName = prompt(`Date selected: ${info.dateStr}` + '\nEnter event name:');
+                    if (eventName) {
+                        let startDate = moment(info.dateStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).format('YYYY-MM-DD HH:mm');
+                        let endDate = moment(info.dateStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).add(2, 'hour').format('YYYY-MM-DD HH:mm')
 
-        <script>
-            const MonthCalendar = tui.Calendar;
-        </script>
-        <script>
-            document.addEventListener("DOMContentLoaded", (event) => {
-                const container = document.getElementById('monthcalendar');
-                const options = {
-                    defaultView: 'month',
-                    timezone: {
-                        zones: [
-                            {
-                                timezoneName: 'America/Vancouver',
-                                displayLabel: 'Vancouver',
-                            }
-                        ],
-                    },
-                    calendars: [
-                        {
-                            id: 'cal1',
-                            name: 'Personal',
-                            backgroundColor: '#03bd9e',
+                        let newEvent = {
+                            title: eventName,
+                            start: startDate,
+                            end: endDate,
+                        };
+                        calendar.addEvent(newEvent);
+                        storedEvents.push(newEvent);
+                    }
+                    fetch('/submitEvent', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
                         },
-                        {
-                            id: 'cal2',
-                            name: 'Work',
-                            backgroundColor: '#00a9ff',
-                        },
-                    ],
-                };
-
-                const monthCalender = new MonthCalendar(container, options);
-                monthCalender.setOptions({
-                    week: {
-                        taskView: false,
-                    },
-                });
-                monthCalender.createEvents([
-                    {
-                        id: 'event1',
-                        calendarId: 'cal2',
-                        title: 'Party meeting',
-                        start: '2023-11-23T09:00:00',
-                        end: '2023-11-23T11:00:00',
-                    },
-                    {
-                        id: 'event2',
-                        calendarId: 'cal1',
-                        title: 'Lunch appointment',
-                        start: '2023-11-23T12:00:00',
-                        end: '2023-11-23T13:00:00',
-                    },
-                    {
-                        id: 'event3',
-                        calendarId: 'cal2',
-                        title: 'Vacation',
-                        start: '2023-11-20',
-                        end: '2023-11-21',
-                        isAllday: true,
-                        category: 'allday',
-                    },
-                ]);
+                        body: JSON.stringify(storedEvents)
+                    }).then(response => response.json()).then(data => {
+                        console.log('Response from server:', data);
+                    }).catch(error => {
+                        console.error('Error:', error);
+                    });
+                },
             });
-
-        </script>
-    </body>
+            calendar.render();
+            }, 1000)
+        });
+    </script>
+</body>
 
 </html>

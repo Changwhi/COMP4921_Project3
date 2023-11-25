@@ -5,7 +5,9 @@ const Joi = require("joi");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 
+
 const db_users = include('database/users');
+const db_events = include('database/events')
 
 const saltRounds = 12;
 const expireTime = 60 * 60 * 1000;
@@ -62,9 +64,11 @@ function sessionValidation(req, res, next) {
 router.get("/", async (req, res) => {
   console.log("idex page hit")
   const isLoggedIn = isValidSession(req)
-  res.render("index", { isLoggedIn: isLoggedIn })
-  // res.render("index", { isLoggedIn: false })
-  return;
+  let calendar_data = await db_events.getEvents({user_id: req.session.userID});
+    if (calendar_data) {
+     res.render("index", {isLoggedIn: isLoggedIn, calendar_data: calendar_data})
+    return;
+    }
 });
 
 router.get("/friends", async (req, res) => {
@@ -75,9 +79,9 @@ router.get("/friends", async (req, res) => {
 
 
 
-router.get("/week", async (req,res) => {
+router.get("/month", async (req,res) => {
   const isLoggedIn = isValidSession(req)
-  res.render('./components/week', {isLoggedIn: isLoggedIn})
+  res.render('./components/month', {isLoggedIn: isLoggedIn})
 })
 
 
@@ -224,5 +228,32 @@ router.post("/submitUser", async (req, res) => {
   }
 });
 
+
+router.post("/submitEvent", async (req, res) => {
+  const isLoggedIn = isValidSession(req)
+  try {
+    let lastElement = req.body[req.body.length - 1];
+    let user_id = req.session.userID;
+    let eventTitle = lastElement.title;
+    let eventStartTime = lastElement.start;
+    let evenEndTime = lastElement.end; 
+    let success = await db_events.createEvent({event_name: eventTitle, event_start_date: eventStartTime, event_end_date: evenEndTime, user_id: user_id})
+    if (success) {
+       let calendar_data = await db_events.getEvents({user_id: req.session.userID});
+       if (calendar_data) {
+        res.render("index", {isLoggedIn: isLoggedIn, calendar_data: calendar_data})
+        return;
+       }
+    } else {
+      res.render('error', {
+        message: `Failed to load the event`,
+        title: "Event load failure"
+      });
+      return;
+    }
+  } catch (err) {
+    return;
+  }
+})
 
 module.exports = router;
