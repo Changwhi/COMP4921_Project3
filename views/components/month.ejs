@@ -33,7 +33,7 @@
             let eventName = prompt(`Date selected: ${info.startStr} to ${info.endStr}` + '\nEnter event name:');
             if (eventName) {
                 let startDate = moment(info.startStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).format('YYYY-MM-DD HH:mm');
-                let endDate = moment(info.endStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).format('YYYY-MM-DD HH:mm')
+                let endDate = moment(info.endStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).subtract(24, 'hour').format('YYYY-MM-DD HH:mm')
 
                 let newEvent = {
                     title: eventName,
