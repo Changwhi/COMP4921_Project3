@@ -13,6 +13,7 @@
             <div class="column is-10 is-offset-1 has-background-white" style="border-radius: 25px;">
                 <div class="card">
                     <div class="card-content" style="max-width: 1100px;">
+                        <div id="error"></div>
                         <div id='calendar'
                             style="width: 100%; max-width: 1100px; max-height: 1100px; margin:10px auto;"></div>
                     </div>
@@ -21,6 +22,8 @@
         </div>
     </section>
     <script>
+        const calendarEl = document.getElementById('calendar');
+        const errorMessage = document.getElementById('error');
         const arrayData = JSON.parse('<%- JSON.stringify(locals.calendar_data) %>');
         let storedEvents = [];
 
@@ -29,7 +32,7 @@
             let endRange = info.endStr;
             console.log(info.startStr + 'to' + info.endStr)
             let eventName = prompt(`Date selected: ${info.startStr} to ${info.endStr}` + '\nEnter event name:');
-            if (eventName) {
+            if (eventName !== null) {
                 let startDate = moment(info.startStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).format('YYYY-MM-DD HH:mm');
                 let endDate = moment(info.endStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).subtract(24, 'hour').format('YYYY-MM-DD HH:mm')
 
@@ -40,6 +43,12 @@
                 };
                 calendar.addEvent(newEvent);
                 storedEvents.push(newEvent);
+            } else {
+                errorMessage.innerHTML += "<h3>No empty values!</h3>"
+                setTimeout(() => {
+                    errorMessage.innerHTML = ""
+                }, 5000)
+                return;
             }
             fetch('/submitEvent', {
                 method: 'POST',
@@ -48,7 +57,6 @@
                 },
                 body: JSON.stringify(storedEvents)
             });
-
         }
 
         const individualDateSelect = (info, calendar) => {
@@ -78,7 +86,6 @@
             let dateClickFlag = false;
 
             setTimeout(function () {
-                let calendarEl = document.getElementById('calendar');
                 let calendar = new FullCalendar.Calendar(calendarEl, {
                     timeZone: 'UTC',
                     initialView: 'dayGridMonth',
@@ -99,7 +106,7 @@
                     }
                 });
                 calendar.render();
-            }, 1000)
+            }, 3000)
         });
     </script>
 </body>
