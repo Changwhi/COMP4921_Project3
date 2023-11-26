@@ -22,13 +22,11 @@
     </section>
     <script>
         const arrayData = JSON.parse('<%- JSON.stringify(locals.calendar_data) %>');
-        let startRange = undefined;
-        let endRange = undefined;
         let storedEvents = [];
 
         const rangeSelect = (info, calendar) => {
-            startRange = info.startStr;
-            endRange = info.endStr;
+            let startRange = info.startStr;
+            let endRange = info.endStr;
             console.log(info.startStr + 'to' + info.endStr)
             let eventName = prompt(`Date selected: ${info.startStr} to ${info.endStr}` + '\nEnter event name:');
             if (eventName) {
