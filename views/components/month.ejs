@@ -13,48 +13,94 @@
             <div class="column is-10 is-offset-1 has-background-white" style="border-radius: 25px;">
                 <div class="card">
                     <div class="card-content" style="max-width: 1100px;">
-                        <div id='calendar' style="width: 100%; max-width: 1100px; max-height: 1100px; margin:10px auto;"></div>
+                        <div id='calendar'
+                            style="width: 100%; max-width: 1100px; max-height: 1100px; margin:10px auto;"></div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
     <script>
-        const arrayData = JSON.parse('<%- JSON.stringify(locals.calendar_data)%>')
-        document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(function () {
-            let calendarEl = document.getElementById('calendar');
-            let storedEvents = [];
-            let calendar = new FullCalendar.Calendar(calendarEl, {
-                timeZone: 'UTC',
-                initialView: 'dayGridMonth',
-                events: arrayData,
-                editable: true,
-                selectable: true,
-                dateClick: (info) => {
-                    let eventName = prompt(`Date selected: ${info.dateStr}` + '\nEnter event name:');
-                    if (eventName) {
-                        let startDate = moment(info.dateStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).format('YYYY-MM-DD HH:mm');
-                        let endDate = moment(info.dateStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).add(2, 'hour').format('YYYY-MM-DD HH:mm')
+        const arrayData = JSON.parse('<%- JSON.stringify(locals.calendar_data) %>');
+        let startRange = undefined;
+        let endRange = undefined;
+        let storedEvents = [];
 
-                        let newEvent = {
-                            title: eventName,
-                            start: startDate,
-                            end: endDate,
-                        };
-                        calendar.addEvent(newEvent);
-                        storedEvents.push(newEvent);
-                    }
-                    fetch('/submitEvent', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(storedEvents)
-                    });
+        const rangeSelect = (info, calendar) => {
+            startRange = info.startStr;
+            endRange = info.endStr;
+            console.log(info.startStr + 'to' + info.endStr)
+            let eventName = prompt(`Date selected: ${info.startStr} to ${info.endStr}` + '\nEnter event name:');
+            if (eventName) {
+                let startDate = moment(info.startStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).format('YYYY-MM-DD HH:mm');
+                let endDate = moment(info.endStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).format('YYYY-MM-DD HH:mm')
+
+                let newEvent = {
+                    title: eventName,
+                    start: startDate,
+                    end: endDate,
+                };
+                calendar.addEvent(newEvent);
+                storedEvents.push(newEvent);
+            }
+            fetch('/submitEvent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
                 },
+                body: JSON.stringify(storedEvents)
             });
-            calendar.render();
+
+        }
+
+        const individualDateSelect = (info, calendar) => {
+            let eventName = prompt(`Date selected: ${info.dateStr}` + '\nEnter event name:');
+            if (eventName) {
+                let startDate = moment(info.dateStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).format('YYYY-MM-DD HH:mm');
+                let endDate = moment(info.dateStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).add(2, 'hour').format('YYYY-MM-DD HH:mm')
+
+                let newEvent = {
+                    title: eventName,
+                    start: startDate,
+                    end: endDate,
+                };
+                calendar.addEvent(newEvent);
+                storedEvents.push(newEvent);
+            }
+            fetch('/submitEvent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(storedEvents)
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let dateClickFlag = false;
+
+            setTimeout(function () {
+                let calendarEl = document.getElementById('calendar');
+                let calendar = new FullCalendar.Calendar(calendarEl, {
+                    timeZone: 'UTC',
+                    initialView: 'dayGridMonth',
+                    events: arrayData,
+                    editable: true,
+                    selectable: true,
+                    dateClick: (info) => {
+                        individualDateSelect(info, calendar)
+                        dateClickFlag = true;
+                    },
+                    select: (info) => {
+                        setTimeout(() => {
+                            if (!dateClickFlag) {
+                                rangeSelect(info, calendar)
+                            }
+                            dateClickFlag = false;
+                        }, 0);
+                    }
+                });
+                calendar.render();
             }, 1000)
         });
     </script>
