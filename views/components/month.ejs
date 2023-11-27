@@ -27,13 +27,31 @@
         const arrayData = JSON.parse('<%- JSON.stringify(locals.calendar_data) %>');
         let storedEvents = [];
 
+
+        function getRandomColor() {
+            let red = Math.floor(Math.random() * 256);
+            let green = Math.floor(Math.random() * 256);
+            let blue = Math.floor(Math.random() * 256);
+
+            let randomColor = 'rgb(' + red + ',' + green + ',' + blue + ')';
+
+            return randomColor;
+        }
+
+        const errorDisplay = () => {
+            errorMessage.innerHTML += "<h3>No empty values!</h3>"
+            setTimeout(() => {
+                errorMessage.innerHTML = ""
+            }, 5000)
+        }
+
         const rangeSelect = (info, calendar) => {
             let startRange = info.startStr;
             let endRange = info.endStr;
             console.log(info.startStr + 'to' + info.endStr)
             let eventName = prompt(`Date selected: ${info.startStr} to ${info.endStr}` + '\nEnter event name:');
-            if (eventName !== null) {
-                let startDate = moment(info.startStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).format('YYYY-MM-DD HH:mm');
+            if (eventName !== null) { // bulma pop up + date, hour, minute selectors
+                let startDate = moment(info.startStr).set({ hour: 11, minute: moment().minute(), second: moment().second() }).format('YYYY-MM-DD HH:mm');
                 let endDate = moment(info.endStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).subtract(24, 'hour').format('YYYY-MM-DD HH:mm')
 
                 let newEvent = {
@@ -44,10 +62,7 @@
                 calendar.addEvent(newEvent);
                 storedEvents.push(newEvent);
             } else {
-                errorMessage.innerHTML += "<h3>No empty values!</h3>"
-                setTimeout(() => {
-                    errorMessage.innerHTML = ""
-                }, 5000)
+                errorDisplay();
                 return;
             }
             fetch('/submitEvent', {
@@ -61,7 +76,7 @@
 
         const individualDateSelect = (info, calendar) => {
             let eventName = prompt(`Date selected: ${info.dateStr}` + '\nEnter event name:');
-            if (eventName) {
+            if (eventName !== null) {
                 let startDate = moment(info.dateStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).format('YYYY-MM-DD HH:mm');
                 let endDate = moment(info.dateStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).add(2, 'hour').format('YYYY-MM-DD HH:mm')
 
@@ -72,6 +87,9 @@
                 };
                 calendar.addEvent(newEvent);
                 storedEvents.push(newEvent);
+            } else {
+                errorDisplay();
+                return;
             }
             fetch('/submitEvent', {
                 method: 'POST',
@@ -92,6 +110,7 @@
                     events: arrayData,
                     editable: true,
                     selectable: true,
+                    eventColor: getRandomColor(),
                     dateClick: (info) => {
                         individualDateSelect(info, calendar)
                         dateClickFlag = true;
