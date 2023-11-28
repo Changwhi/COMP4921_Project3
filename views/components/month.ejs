@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
@@ -62,6 +61,7 @@
     </section>
 
     <script>
+        const tabTitle = document.getElementById('month-title');
         const calendarEl = document.getElementById('calendar');
         const errorMessage = document.getElementById('error');
         let eventName = document.getElementById('event-name')
@@ -195,9 +195,11 @@
                 cancelFormBtn.addEventListener('click', () => {
                     closeAllModals();
                 })
+
+                tabTitle.innerHTML = calendar.getEventSources()[0].context.viewTitle
             }, 3000)
 
-
+            
 
             // All Modal functions below
             function openModal($el) {

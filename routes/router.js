@@ -82,13 +82,6 @@ router.get("/friends", async (req, res) => {
 })
 
 
-
-router.get("/month", async (req,res) => {
-  const isLoggedIn = isValidSession(req)
-  res.render('./components/month', {isLoggedIn: isLoggedIn})
-})
-
-
 router.get("/login", async (req, res) => {
   const isLoggedIn = isValidSession(req)
   res.render("login", {
