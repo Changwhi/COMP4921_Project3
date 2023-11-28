@@ -4,16 +4,55 @@
 <head>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@easepick/core@1.2.1/dist/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@easepick/datetime@1.2.1/dist/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@easepick/base-plugin@1.2.1/dist/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@easepick/amp-plugin@1.2.1/dist/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@easepick/range-plugin@1.2.1/dist/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@easepick/lock-plugin@1.2.1/dist/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@easepick/preset-plugin@1.2.1/dist/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@easepick/kbd-plugin@1.2.1/dist/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@easepick/time-plugin@1.2.1/dist/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.umd.min.js"></script>
 </head>
 
 <body>
-    <section class="section has-background-light">
+    <section class="section">
         <div class="maincolumns columns is-desktop">
             <div class="column is-10 is-offset-1 has-background-white" style="border-radius: 25px;">
                 <div class="card">
                     <div class="card-content" style="max-width: 1100px;">
-                        <div id="error"></div>
+                        <div id="modal-js-date-select" class="modal">
+                            <div class="modal-background"></div>
+                            <div class="columns">
+                                <div class="modal-content is-centered">
+                                    <div class="box" style="height: 600px;">
+                                        <div id="error"></div>
+                                        <p>Add an event!</p>
+                                        <div class="column">
+                                            <label>Event Name</label>
+                                            <input type="text" id="event-name"
+                                                placeholder="Event Name">
+                                        </div>
+                                        <div class="column">
+                                            <label>Start Date:</label>
+                                            <input id="start-datepicker" />
+                                        </div>
+                                        <div class="column">
+                                            <label>End Date:</label>
+                                            <input id="end-datepicker" />
+                                        </div>
+                                        <div class="column" style="margin-top: 300px;">
+                                            <button id="submit-event" type="submit" class="button is-primary">Create event</button>
+                                            <button id="cancel-form" type="cancel" class="button is-primary">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="modal-close is-large" aria-label="close"></button>
+                        </div>
+
                         <div id='calendar'
                             style="width: 100%; max-width: 1100px; max-height: 1100px; margin:10px auto;"></div>
                     </div>
@@ -21,20 +60,25 @@
             </div>
         </div>
     </section>
+
     <script>
         const calendarEl = document.getElementById('calendar');
         const errorMessage = document.getElementById('error');
+        let eventName = document.getElementById('event-name')
+        const submitEventBtn = document.getElementById('submit-event')
+        const cancelFormBtn = document.getElementById('cancel-form')
         const arrayData = JSON.parse('<%- JSON.stringify(locals.calendar_data) %>');
         let storedEvents = [];
+        let dateClickFlag = false;
+        let startDate = undefined;
+        let endDate = undefined;
 
 
         function getRandomColor() {
             let red = Math.floor(Math.random() * 256);
             let green = Math.floor(Math.random() * 256);
             let blue = Math.floor(Math.random() * 256);
-
             let randomColor = 'rgb(' + red + ',' + green + ',' + blue + ')';
-
             return randomColor;
         }
 
@@ -45,87 +89,156 @@
             }, 5000)
         }
 
-        const rangeSelect = (info, calendar) => {
-            let startRange = info.startStr;
-            let endRange = info.endStr;
-            console.log(info.startStr + 'to' + info.endStr)
-            let eventName = prompt(`Date selected: ${info.startStr} to ${info.endStr}` + '\nEnter event name:');
-            if (eventName !== null) { // bulma pop up + date, hour, minute selectors
-                let startDate = moment(info.startStr).set({ hour: 11, minute: moment().minute(), second: moment().second() }).format('YYYY-MM-DD HH:mm');
-                let endDate = moment(info.endStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).subtract(24, 'hour').format('YYYY-MM-DD HH:mm')
-
-                let newEvent = {
-                    title: eventName,
-                    start: startDate,
-                    end: endDate,
-                };
-                calendar.addEvent(newEvent);
-                storedEvents.push(newEvent);
-            } else {
-                errorDisplay();
-                return;
-            }
-            fetch('/submitEvent', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
+        const individualDateSelect = (info, calendar, openModal, closeAllModals) => {
+            dateClickFlag = true;
+            openModal(document.getElementById('modal-js-date-select'))
+            const firstDateSelectPicker = new easepick.create({
+                lang: 'en-US',
+                element: "#start-datepicker",
+                buttons: {
+                    showPreviousMonth: true,
+                    showNextMonth: true,
                 },
-                body: JSON.stringify(storedEvents)
+                css: [
+                    "https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css",
+                    'https://cdn.jsdelivr.net/npm/@easepick/time-plugin@1.2.1/dist/index.css',
+                ],
+                locale: {
+                    cancel: 'Cancel',
+                    apply: 'Apply',
+                },
+                plugins: [
+                    'TimePlugin',
+                ],
+                TimePlugin: {
+                    format: 'HH:mm',
+                }
+            })
+            firstDateSelectPicker.on('select', (e) => {
+                return startDate = moment(firstDateSelectPicker.getDate()).format('YYYY-MM-DD HH:mm')
+
             });
-        }
-
-        const individualDateSelect = (info, calendar) => {
-            let eventName = prompt(`Date selected: ${info.dateStr}` + '\nEnter event name:');
-            if (eventName !== null) {
-                let startDate = moment(info.dateStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).format('YYYY-MM-DD HH:mm');
-                let endDate = moment(info.dateStr).set({ hour: moment().hour(), minute: moment().minute(), second: moment().second() }).add(2, 'hour').format('YYYY-MM-DD HH:mm')
-
-                let newEvent = {
-                    title: eventName,
-                    start: startDate,
-                    end: endDate,
-                };
-                calendar.addEvent(newEvent);
-                storedEvents.push(newEvent);
-            } else {
-                errorDisplay();
-                return;
-            }
-            fetch('/submitEvent', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
+            const endDateSelectPicker = new easepick.create({
+                lang: 'en-US',
+                element: "#end-datepicker",
+                buttons: {
+                    showPreviousMonth: true,
+                    showNextMonth: true,
                 },
-                body: JSON.stringify(storedEvents)
+                css: [
+                    "https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css",
+                    'https://cdn.jsdelivr.net/npm/@easepick/time-plugin@1.2.1/dist/index.css',
+                ],
+                locale: {
+                    cancel: 'Cancel',
+                    apply: 'Apply',
+                },
+                plugins: [
+                    'TimePlugin',
+                ],
+                TimePlugin: {
+                    format: 'HH:mm',
+                }
+            })
+            endDateSelectPicker.on('select', (e) => {
+                return endDate = moment(endDateSelectPicker.getDate()).format('YYYY-MM-DD HH:mm')
             });
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            let dateClickFlag = false;
-
+            let calendar;
             setTimeout(function () {
-                let calendar = new FullCalendar.Calendar(calendarEl, {
+                calendar = new FullCalendar.Calendar(calendarEl, {
                     timeZone: 'UTC',
                     initialView: 'dayGridMonth',
                     events: arrayData,
-                    editable: true,
-                    selectable: true,
+                    editable: false,
+                    selectable: false,
                     eventColor: getRandomColor(),
                     dateClick: (info) => {
-                        individualDateSelect(info, calendar)
-                        dateClickFlag = true;
-                    },
-                    select: (info) => {
-                        setTimeout(() => {
-                            if (!dateClickFlag) {
-                                rangeSelect(info, calendar)
-                            }
-                            dateClickFlag = false;
-                        }, 0);
+                        individualDateSelect(info, calendar, openModal, closeAllModals)
                     }
                 });
                 calendar.render();
+
+                submitEventBtn.addEventListener('click', async () => {
+                    submitEventBtn.disabled = true;
+                    try {
+                        if (eventName.value !== null) {
+                            let newEvent = {
+                                title: eventName.value,
+                                start: startDate,
+                                end: endDate,
+                            };
+                            calendar.addEvent(newEvent);
+                            storedEvents.push(newEvent);
+                        } else {
+                            errorDisplay();
+                            return;
+                        }
+
+                        await fetch('/submitEvent', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(storedEvents),
+                        });
+                        closeAllModals();
+                    } catch (error) {
+                        console.log(error);
+                    } finally {
+                        submitEventBtn.disabled = false;
+                    }
+                });
+
+                cancelFormBtn.addEventListener('click', () => {
+                    closeAllModals();
+                })
             }, 3000)
+
+
+
+            // All Modal functions below
+            function openModal($el) {
+                $el.classList.add('is-active');
+            }
+
+            function closeModal($el) {
+                $el.classList.remove('is-active');
+            }
+
+            function closeAllModals() {
+                (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+                    closeModal($modal);
+                });
+            }
+            // Add a click event on buttons to open a specific modal
+            (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
+                const modal = $trigger.dataset.target;
+                const $target = document.getElementById(modal);
+
+                $trigger.addEventListener('click', () => {
+                    openModal($target);
+                });
+            });
+
+            // Add a click event on various child elements to close the parent modal
+            (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
+                const $target = $close.closest('.modal');
+
+                $close.addEventListener('click', () => {
+                    closeModal($target);
+                });
+            });
+
+            // Add a keyboard event to close all modals
+            document.addEventListener('keydown', (event) => {
+                if (event.code === 'Escape') {
+                    closeAllModals();
+                }
+            });
+
         });
     </script>
 </body>
