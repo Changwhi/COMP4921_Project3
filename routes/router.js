@@ -8,6 +8,7 @@ const moment = require('moment');
 
 const db_users = include('database/users');
 const db_events = include('database/events')
+const db_friendevents = include('database/friendcalendar')
 
 const saltRounds = 12;
 const expireTime = 60 * 60 * 1000;
@@ -234,7 +235,7 @@ router.post("/submitEvent", async (req, res) => {
     let eventTitle = lastElement.title;
     let eventStartTime = lastElement.start;
     let evenEndTime = lastElement.end;
-    let eventColor = lastElement.eventColor; 
+    let eventColor = lastElement.color; 
     let success = await db_events.createEvent({event_name: eventTitle, event_start_date: eventStartTime, event_end_date: evenEndTime, user_id: user_id, event_color: eventColor })
     if (success) {
        let calendar_data = await db_events.getEvents({user_id: req.session.userID});
@@ -252,6 +253,20 @@ router.post("/submitEvent", async (req, res) => {
   } catch (err) {
     return;
   }
+})
+
+
+router.get('/friendCalendar', async (req, res) => {
+  const isLoggedIn = isValidSession(req)
+  let friend_calendar = await db_friendevents.getFriendEvents({user_id: req.session.userID});
+  for (let i = 0; i < friend_calendar.length; i++) {
+    friend_calendar[i].start = moment.utc(friend_calendar[i].start).local().format('YYYY-MM-DD HH:mm:ss');
+    friend_calendar[i].end = moment.utc(friend_calendar[i].end).local().format('YYYY-MM-DD HH:mm:ss')
+    }
+    if (friend_calendar) {
+     res.render("components/friendcalendar", {isLoggedIn: isLoggedIn, friend_calendar: friend_calendar})
+    return;
+    }
 })
 
 module.exports = router;

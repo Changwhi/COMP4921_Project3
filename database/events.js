@@ -2,7 +2,7 @@ const mySqlDatabase = include('databaseConnectionSQL');
 
 async function createEvent(postData) {
   let createEventSQL = `
-    INSERT INTO event (title, start, end, user_id, event_color)
+    INSERT INTO event (title, start, end, user_id, color)
     VALUES (:event_name, :event_start, :event_end,
         (SELECT user_id
          FROM user
@@ -32,7 +32,7 @@ async function createEvent(postData) {
 
 async function getEvents(postData) {
     let getEventSQL = `
-    SELECT title, start, end, event_color
+    SELECT title, start, end, color
     FROM event
     WHERE user_id = :user_id;
     `;

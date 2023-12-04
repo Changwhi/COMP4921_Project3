@@ -154,7 +154,7 @@
             if (arrayData === undefined || arrayData.length === 0) {
                 tempColor = 'rgb(0,0,255)';
             } else { 
-                tempColor = arrayData[0].event_color;
+                tempColor = arrayData[0].color;
             }
             setTimeout(function () {
                 calendar = new FullCalendar.Calendar(calendarEl, {
@@ -174,7 +174,7 @@
                     submitEventBtn.disabled = true;
                     randomSelectedColor = getRandomColor();
                     if (arrayData.length >= 1) {
-                        randomSelectedColor = null;
+                        randomSelectedColor = arrayData[0].color;
                     }
                     try {
                         if (eventName.value !== null) {
@@ -182,7 +182,7 @@
                                 title: eventName.value,
                                 start: startDate,
                                 end: endDate,
-                                eventColor: randomSelectedColor,
+                                color: randomSelectedColor,
                             };
                             calendar.addEvent(newEvent);
                             storedEvents.push(newEvent);
