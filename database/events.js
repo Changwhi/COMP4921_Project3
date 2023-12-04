@@ -2,18 +2,19 @@ const mySqlDatabase = include('databaseConnectionSQL');
 
 async function createEvent(postData) {
   let createEventSQL = `
-    INSERT INTO event (title, start, end, user_id)
+    INSERT INTO event (title, start, end, user_id, event_color)
     VALUES (:event_name, :event_start, :event_end,
         (SELECT user_id
          FROM user
-         WHERE user_id = :user_id));
+         WHERE user_id = :user_id), :event_color);
 	`;
 
   let params = {
     event_name: postData.event_name,
     event_start: postData.event_start_date,
     event_end: postData.event_end_date,
-    user_id: postData.user_id
+    user_id: postData.user_id,
+    event_color: postData.event_color
   }
 
 	try {
@@ -31,7 +32,7 @@ async function createEvent(postData) {
 
 async function getEvents(postData) {
     let getEventSQL = `
-    SELECT title, start, end
+    SELECT title, start, end, event_color
     FROM event
     WHERE user_id = :user_id;
     `;

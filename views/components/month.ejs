@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
@@ -31,8 +32,7 @@
                                         <p>Add an event!</p>
                                         <div class="column">
                                             <label>Event Name</label>
-                                            <input type="text" id="event-name"
-                                                placeholder="Event Name">
+                                            <input type="text" id="event-name" placeholder="Event Name">
                                         </div>
                                         <div class="column">
                                             <label>Start Date:</label>
@@ -43,8 +43,10 @@
                                             <input id="end-datepicker" />
                                         </div>
                                         <div class="column" style="margin-top: 300px;">
-                                            <button id="submit-event" type="submit" class="button is-primary">Create event</button>
-                                            <button id="cancel-form" type="cancel" class="button is-primary">Cancel</button>
+                                            <button id="submit-event" type="submit" class="button is-primary">Create
+                                                event</button>
+                                            <button id="cancel-form" type="cancel"
+                                                class="button is-primary">Cancel</button>
                                         </div>
                                     </div>
                                 </div>
@@ -147,6 +149,13 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             let calendar;
+            let randomSelectedColor;
+            let tempColor;
+            if (arrayData === undefined || arrayData.length === 0) {
+                tempColor = 'rgb(0,0,255)';
+            } else { 
+                tempColor = arrayData[0].event_color;
+            }
             setTimeout(function () {
                 calendar = new FullCalendar.Calendar(calendarEl, {
                     timeZone: 'UTC',
@@ -154,7 +163,7 @@
                     events: arrayData,
                     editable: false,
                     selectable: false,
-                    eventColor: getRandomColor(),
+                    eventColor: tempColor,
                     dateClick: (info) => {
                         individualDateSelect(info, calendar, openModal, closeAllModals)
                     }
@@ -163,12 +172,17 @@
 
                 submitEventBtn.addEventListener('click', async () => {
                     submitEventBtn.disabled = true;
+                    randomSelectedColor = getRandomColor();
+                    if (arrayData.length >= 1) {
+                        randomSelectedColor = null;
+                    }
                     try {
                         if (eventName.value !== null) {
                             let newEvent = {
                                 title: eventName.value,
                                 start: startDate,
                                 end: endDate,
+                                eventColor: randomSelectedColor,
                             };
                             calendar.addEvent(newEvent);
                             storedEvents.push(newEvent);
@@ -199,7 +213,7 @@
                 tabTitle.innerHTML = calendar.getEventSources()[0].context.viewTitle
             }, 3000)
 
-            
+
 
             // All Modal functions below
             function openModal($el) {

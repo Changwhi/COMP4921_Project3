@@ -233,8 +233,9 @@ router.post("/submitEvent", async (req, res) => {
     let user_id = req.session.userID;
     let eventTitle = lastElement.title;
     let eventStartTime = lastElement.start;
-    let evenEndTime = lastElement.end; 
-    let success = await db_events.createEvent({event_name: eventTitle, event_start_date: eventStartTime, event_end_date: evenEndTime, user_id: user_id})
+    let evenEndTime = lastElement.end;
+    let eventColor = lastElement.eventColor; 
+    let success = await db_events.createEvent({event_name: eventTitle, event_start_date: eventStartTime, event_end_date: evenEndTime, user_id: user_id, event_color: eventColor })
     if (success) {
        let calendar_data = await db_events.getEvents({user_id: req.session.userID});
        if (calendar_data) {
