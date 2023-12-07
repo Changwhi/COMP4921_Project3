@@ -52,7 +52,6 @@ function isValidSession(req) {
 }
 
 function sessionValidation(req, res, next) {
-  console.log("hit sessionValidation")
   if (!isValidSession(req)) {
     res.locals.isLoggedIn = req.session.authenticated === true;
     req.session.destroy();
@@ -79,12 +78,6 @@ router.get("/", async (req, res) => {
     return;
     }
 });
-
-router.get("/friends", async (req, res) => {
-  const isLoggedIn = isValidSession(req)
-  res.render("friends", { isLoggedIn: isLoggedIn })
-  return;
-})
 
 
 router.get("/login", async (req, res) => {
@@ -344,6 +337,7 @@ router.post('/friends/add/accept', sessionValidation, async (req, res) => {
 
 
 router.get("/friends", sessionValidation, async (req, res) => {
+  console.log("Hello")
   try {
     const isLoggedIn = isValidSession(req)
     const user_id = req.session.userID;
