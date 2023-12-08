@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+    <%- include("../templates/header") %>
 
 <head>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js'></script>
@@ -22,7 +23,7 @@
         <div style="display:flex; align-items:baseline;">
             <% if (locals.listOfFriends && locals.listOfFriends.length> 0) { %>
                 <div class="column is-4" style="width:20%;">
-                    <h1>Friend Filter</h1>
+                    <h2>Friend Filter</h2>
                     <div>
                         <% locals.listOfFriends.forEach(function(friend) { %>
                             <div>
@@ -53,7 +54,6 @@
         const cancelFormBtn = document.getElementById('cancel-form')
         const arrayData = JSON.parse('<%- JSON.stringify(locals.friend_calendar) %>');
         let storedEvents = [];
-        let dateClickFlag = false;
         let startDate = undefined;
         let endDate = undefined;
         let calendar;
