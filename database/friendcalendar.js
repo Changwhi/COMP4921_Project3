@@ -2,13 +2,17 @@ const mySqlDatabase = include('databaseConnectionSQL');
 
 async function getFriendEvents(postData) {
     let getFriendEventSQL = `
-        select * 
-        from event
-        where user_id = :user_id
+        select activeUserEvent.color, activeUserEvent.start, activeUserEvent.end, activeUserEvent.user_id, loggedInUser.email, loggedInUser.name as title 
+        from event as activeUserEvent
+        JOIN user as loggedInUser
+        ON activeUserEvent.user_id = loggedInUser.user_id
+        where loggedInUser.user_id = :user_id
         union
-        select *
-        from event
-        where user_id in (
+        select activeFriend.color, activeFriend.start, activeFriend.end, activeFriend.user_id, friendsOfUser.email, friendsOfUser.name as title
+        from event activeFriend
+        join user as friendsOfUser
+        on activeFriend.user_id = friendsOfUser.user_id
+        where friendsOfUser.user_id in (
         select f.user_id
         from friendList as f
         join user as u
