@@ -531,12 +531,13 @@ router.post("/submitEvent", async (req, res) => {
     let eventTitle = lastElement.title;
     let eventStartTime = lastElement.start;
     let evenEndTime = lastElement.end;
-    let eventColor = lastElement.color; 
-    let success = await db_events.createEvent({event_name: eventTitle, event_start_date: eventStartTime, event_end_date: evenEndTime, user_id: user_id, event_color: eventColor })
+    let eventColor = lastElement.color;
+    let backgroundColor = lastElement.backgroundColor
+    let success = await db_events.createEvent({ backgroundColor: backgroundColor, event_name: eventTitle, event_start_date: eventStartTime, event_end_date: evenEndTime, user_id: user_id, event_color: eventColor })
     if (success) {
-       let calendar_data = await db_events.getEvents({user_id: req.session.userID});
-       if (calendar_data) {
-        res.render("index", {isLoggedIn: isLoggedIn, calendar_data: calendar_data})
+      let calendar_data = await db_events.getEvents({ user_id: req.session.userID });
+      if (calendar_data) {
+        res.render("index", { isLoggedIn: isLoggedIn, calendar_data: calendar_data })
         return;
       }
     } else {
