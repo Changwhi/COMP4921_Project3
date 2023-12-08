@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <%- include("templates/header") %>
+
   <body>
     <section class="section has-background-light">
       <div class="maincolumns columns is-desktop">
@@ -31,6 +32,14 @@
                   <span>Month</span>
                 </a>
               </li>
+              <li>
+                <a class="button is-small is-primary js-modal-trigger" data-target="modal-js-example"
+                  onclick="individualDateSelect()">
+                  <span class="icon is-large"><i class="fas fa-address-book" aria-hidden="true"></i></span>
+                  <span>Add Event</span>
+                </a>
+              </li>
+
             </ul>
           </div>
           <!-- Tabs -->
@@ -91,10 +100,57 @@
             <div class='columns'>
             </div>
           </div>
+
+
         </div>
+
+
+
+
+
+
+      </div>
+      <div id="modal-js-date-select" class="modal">
+        <div class="modal-background"></div>
+        <div class="columns">
+          <div class="modal-content is-centered">
+            <div class="box" style="height: 600px;">
+              <div id="error"></div>
+              <p>Add an event!</p>
+              <div class="column">
+                <label>Event Name</label>
+                <input type="text" id="event-name" placeholder="Event Name">
+              </div>
+              <div class="column">
+                <label>Start Date:</label>
+                <input id="start-datepicker" />
+              </div>
+              <div class="column">
+                <label>End Date:</label>
+                <input id="end-datepicker" />
+              </div>
+              <div class="column" style="margin-top: 300px;">
+                <button id="submit-event" type="submit" class="button is-primary">Create
+                  event</button>
+                <button id="cancel-form" type="cancel" class="button is-primary">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="modal-close is-large" aria-label="close"></button>
+      </div>
+
+
     </section>
+
     <script>
-      
+      let startDate = undefined;
+      let endDate = undefined;
+      let randomSelectedColor;
+      const cancelFormBtn = document.getElementById('cancel-form')
+      const submitEventBtn = document.getElementById('submit-event')
+      let storedEvents = [];
+
       function displayComponent(params) {
         console.log(params.number)
         console.log(params.name)
@@ -106,6 +162,145 @@
         document.querySelectorAll('li')[params.number].classList.add('is-active');
         document.querySelector(params.name).style.display = "block";
       }
+
+      const individualDateSelect = () => {
+        dateClickFlag = true;
+        document.getElementById('modal-js-date-select').classList.add('is-active');
+        const firstDateSelectPicker = new easepick.create({
+          lang: 'en-US',
+          element: "#start-datepicker",
+          buttons: {
+            showPreviousMonth: true,
+            showNextMonth: true,
+          },
+          css: [
+            "https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css",
+            'https://cdn.jsdelivr.net/npm/@easepick/time-plugin@1.2.1/dist/index.css',
+          ],
+          locale: {
+            cancel: 'Cancel',
+            apply: 'Apply',
+          },
+          plugins: [
+            'TimePlugin',
+          ],
+          TimePlugin: {
+            format: 'HH:mm',
+          }
+        })
+        firstDateSelectPicker.on('select', (e) => {
+          return startDate = moment(firstDateSelectPicker.getDate()).format('YYYY-MM-DD HH:mm')
+        });
+        const endDateSelectPicker = new easepick.create({
+          lang: 'en-US',
+          element: "#end-datepicker",
+          buttons: {
+            showPreviousMonth: true,
+            showNextMonth: true,
+          },
+          css: [
+            "https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css",
+            'https://cdn.jsdelivr.net/npm/@easepick/time-plugin@1.2.1/dist/index.css',
+          ],
+          locale: {
+            cancel: 'Cancel',
+            apply: 'Apply',
+          },
+          plugins: [
+            'TimePlugin',
+          ],
+          TimePlugin: {
+            format: 'HH:mm',
+          }
+        })
+        endDateSelectPicker.on('select', (e) => {
+          return endDate = moment(endDateSelectPicker.getDate()).format('YYYY-MM-DD HH:mm')
+        });
+      }
+
+      (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
+        const $target = $close.closest('.modal');
+
+        $close.addEventListener('click', () => {
+          $target.classList.remove('is-active');
+        });
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.code === 'Escape') {
+          (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+            $modal.classList.remove('is-active');
+          });
+        }
+      });
+
+
+
+      function getRandomColor() {
+        let red = Math.floor(Math.random() * 256);
+        let green = Math.floor(Math.random() * 256);
+        let blue = Math.floor(Math.random() * 256);
+        let randomColor = 'rgb(' + red + ',' + green + ',' + blue + ')';
+        return randomColor;
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+
+        cancelFormBtn.addEventListener('click', () => {
+          (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+            $modal.classList.remove('is-active');
+
+          });
+
+        })
+
+
+
+        submitEventBtn.addEventListener('click', async () => {
+          let eventName = document.getElementById('event-name')
+          submitEventBtn.disabled = true;
+          randomSelectedColor = getRandomColor();
+          if (arrayData.length >= 1) {
+            randomSelectedColor = arrayData[0].color;
+          }
+          try {
+            if (eventName.value !== null) {
+              let newEvent = {
+                title: eventName.value,
+                start: startDate,
+                end: endDate,
+                color: randomSelectedColor,
+                backgroundColor: getRandomColor(),
+              };
+              storedEvents.push(newEvent);
+              await fetch('/submitEvent', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(storedEvents),
+              });
+            } else {
+              errorDisplay();
+              return;
+            }
+
+            (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+              $modal.classList.remove('is-active');
+
+            });
+
+          } catch (error) {
+            console.log(error);
+          } finally {
+            submitEventBtn.disabled = false;
+          }
+        });
+
+
+
+
+      })
     </script>
   </body>
 

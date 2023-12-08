@@ -68,15 +68,15 @@ function sessionValidation(req, res, next) {
 router.get("/", async (req, res) => {
   console.log("idex page hit")
   const isLoggedIn = isValidSession(req)
-  let calendar_data = await db_events.getEvents({user_id: req.session.userID});
+  let calendar_data = await db_events.getEvents({ user_id: req.session.userID });
   for (let i = 0; i < calendar_data.length; i++) {
     calendar_data[i].start = moment.utc(calendar_data[i].start).local().format('YYYY-MM-DD HH:mm:ss');
     calendar_data[i].end = moment.utc(calendar_data[i].end).local().format('YYYY-MM-DD HH:mm:ss')
-    }
-    if (calendar_data) {
-     res.render("index", {isLoggedIn: isLoggedIn, calendar_data: calendar_data})
+  }
+  if (calendar_data) {
+    res.render("index", { isLoggedIn: isLoggedIn, calendar_data: calendar_data })
     return;
-    }
+  }
 });
 
 
@@ -457,14 +457,15 @@ router.post("/submitEvent", async (req, res) => {
     let eventTitle = lastElement.title;
     let eventStartTime = lastElement.start;
     let evenEndTime = lastElement.end;
-    let eventColor = lastElement.color; 
-    let success = await db_events.createEvent({event_name: eventTitle, event_start_date: eventStartTime, event_end_date: evenEndTime, user_id: user_id, event_color: eventColor })
+    let eventColor = lastElement.color;
+    let backgroundColor = lastElement.backgroundColor;
+    let success = await db_events.createEvent({ backgroundColor: backgroundColor, event_name: eventTitle, event_start_date: eventStartTime, event_end_date: evenEndTime, user_id: user_id, event_color: eventColor })
     if (success) {
-       let calendar_data = await db_events.getEvents({user_id: req.session.userID});
-       if (calendar_data) {
-        res.render("index", {isLoggedIn: isLoggedIn, calendar_data: calendar_data})
+      let calendar_data = await db_events.getEvents({ user_id: req.session.userID });
+      if (calendar_data) {
+        res.render("index", { isLoggedIn: isLoggedIn, calendar_data: calendar_data })
         return;
-       }
+      }
     } else {
       res.render('error', {
         message: `Failed to load the event`,
@@ -480,15 +481,15 @@ router.post("/submitEvent", async (req, res) => {
 
 router.get('/friendCalendar', async (req, res) => {
   const isLoggedIn = isValidSession(req)
-  let friend_calendar = await db_friendevents.getFriendEvents({user_id: req.session.userID});
+  let friend_calendar = await db_friendevents.getFriendEvents({ user_id: req.session.userID });
   for (let i = 0; i < friend_calendar.length; i++) {
     friend_calendar[i].start = moment.utc(friend_calendar[i].start).local().format('YYYY-MM-DD HH:mm:ss');
     friend_calendar[i].end = moment.utc(friend_calendar[i].end).local().format('YYYY-MM-DD HH:mm:ss')
-    }
-    if (friend_calendar) {
-     res.render("components/friendcalendar", {isLoggedIn: isLoggedIn, friend_calendar: friend_calendar})
+  }
+  if (friend_calendar) {
+    res.render("components/friendcalendar", { isLoggedIn: isLoggedIn, friend_calendar: friend_calendar })
     return;
-    }
+  }
 })
 
 module.exports = router;
