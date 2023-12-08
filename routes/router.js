@@ -563,7 +563,7 @@ router.post("/submitEvent", async (req, res) => {
 })
 
 
-router.get('/friendCalendar', async (req, res) => {
+router.get('/friendCalendar', sessionValidation, async (req, res) => {
   const isLoggedIn = isValidSession(req)
   let friend_calendar = await db_friendevents.getFriendEvents({
     user_id: req.session.userID
