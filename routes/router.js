@@ -571,15 +571,23 @@ router.get('/friendCalendar', async (req, res) => {
   let friendsOfUser = await db_friend.retrieveFriend({
     user_id: req.session.userID
   })
+  let sLU = await db_friendevents.gLIUserE({
+    user_id: req.session.userID
+  })
   for (let i = 0; i < friend_calendar.length; i++) {
     friend_calendar[i].start = moment.utc(friend_calendar[i].start).local().format('YYYY-MM-DD HH:mm:ss');
     friend_calendar[i].end = moment.utc(friend_calendar[i].end).local().format('YYYY-MM-DD HH:mm:ss')
+  }
+  for (let i = 0; i < sLU.length; i++) {
+    sLU[i].start = moment.utc(sLU[i].start).local().format('YYYY-MM-DD HH:mm:ss');
+    sLU[i].end = moment.utc(sLU[i].end).local().format('YYYY-MM-DD HH:mm:ss');
   }
   if (friend_calendar) {
     res.render("components/friendcalendar", {
       isLoggedIn: isLoggedIn,
       friend_calendar: friend_calendar,
-      listOfFriends: friendsOfUser[0]
+      listOfFriends: friendsOfUser[0],
+      sLU: sLU
     })
     return;
   }

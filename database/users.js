@@ -46,5 +46,4 @@ async function getUsers() {
 }
 
 
-
 module.exports = { createUser, getUsers };

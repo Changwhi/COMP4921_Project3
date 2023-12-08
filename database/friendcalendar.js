@@ -34,6 +34,26 @@ async function getFriendEvents(postData) {
     }
 }
 
+async function gLIUserE(getData) {
+    let gLIUserESQL = `
+    select sLU.user_id, sLU.email, sLU.name as title, eLU.start, eLU.end, eLU.color, eLU.event_id, eLU.isRemoved
+    from user sLU
+    join event eLU
+    on sLU.user_id = eLU.user_id
+    where eLU.user_id = :user_id;
+    `
+    let params = {
+        user_id: getData.user_id
+    }
+    try {
+        const sU = await mySqlDatabase.query(gLIUserESQL, params)
+        return sU[0];
+    } catch (err) {
+        console.log("Cannot get sLU")
+        return false; 
+    }
+  }
+
 module.exports = {
-    getFriendEvents
+    getFriendEvents, gLIUserE
 };
