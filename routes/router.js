@@ -64,7 +64,7 @@ function sessionValidation(req, res, next) {
 }
 
 
-router.get("/", async (req, res) => {
+router.get("/", sessionValidation,async (req, res) => {
   console.log("idex page hit")
   const isLoggedIn = isValidSession(req)
   let calendar_data = await db_events.getEvents({
