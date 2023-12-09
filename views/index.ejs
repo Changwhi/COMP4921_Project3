@@ -46,37 +46,14 @@
 
           <div class='today'>
             <div class='column has-text-centered'>
-              <button class="button">
-                <span class="icon is-small">
-                  <i class="fas fa-arrow-circle-left"></i>
-                </span>
-              </button>
-              <h1 class="title" style="display: inline;">Nov 9 2023</h1>
-              <button class="button">
-                <span class="icon is-small">
-                  <i class="fas fa-arrow-circle-right"></i>
-                </span>
-              </button>
               <%- include("components/today.ejs") %>
             </div>
             <div class='columns'>
             </div>
           </div>
 
-
           <div class='upcoming' style='display: none'>
             <div class='column has-text-centered'>
-              <button class="button">
-                <span class="icon is-small">
-                  <i class="fas fa-arrow-circle-left"></i>
-                </span>
-              </button>
-              <h1 class="title" style="display: inline;">Nov 10 2023</h1>
-              <button class="button">
-                <span class="icon is-small">
-                  <i class="fas fa-arrow-circle-right"></i>
-                </span>
-              </button>
               <%- include("components/upcoming.ejs") %>
             </div>
             <div class='columns'>
@@ -84,7 +61,6 @@
           </div>
           <div class='week' style='display: none'>
             <div class='column has-text-centered'>
-              <h1 class="title">week</h1>
               <%- include("components/week.ejs") %>
             </div>
             <div class='columns'>
@@ -161,6 +137,23 @@
         }
         document.querySelectorAll('li')[params.number].classList.add('is-active');
         document.querySelector(params.name).style.display = "block";
+
+        if (params.name === ".today") {
+          dayCalendar.render();
+          return;
+        }
+        if (params.name === ".upcoming") {
+          upcomingCalendar.render();
+          return;
+        }
+        if (params.name === ".week") {
+          weekCalendar.render();
+          return;
+        }
+        if (params.name === ".month") {
+          calendar.render();
+          return;
+        }
       }
 
       const individualDateSelect = () => {
@@ -255,7 +248,6 @@
         })
 
 
-
         submitEventBtn.addEventListener('click', async () => {
           let eventName = document.getElementById('event-name')
           submitEventBtn.disabled = true;
@@ -273,6 +265,10 @@
                 backgroundColor: getRandomColor(),
               };
               storedEvents.push(newEvent);
+              upcomingCalendar.addEvent(newEvent);
+              weekCalendar.addEvent(newEvent);
+              calendar.addEvent(newEvent);
+              dayCalendar.addEvent(newEvent);
               await fetch('/submitEvent', {
                 method: 'POST',
                 headers: {

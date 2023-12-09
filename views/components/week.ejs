@@ -12,15 +12,41 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="content">
-                            <div id="weekcalendar" style="height: 600px;"></div>
+                            <div id="weekcalendar" style="min-height: 600px;"></div>
                         </div>
                     </div>
                 </div>
             </div>
     </section>
-
     <script>
+        const weekCalendarEl = document.getElementById('weekcalendar');
+        let weekArrayData = JSON.parse('<%- JSON.stringify(locals.calendar_data) %>');
+        let weekCalendar;
 
+        document.addEventListener('DOMContentLoaded', function () {
+            let randomSelectedColor;
+            let tempColor;
+            function getRandomColorWeek() {
+                let red = Math.floor(Math.random() * 256);
+                let green = Math.floor(Math.random() * 256);
+                let blue = Math.floor(Math.random() * 256);
+                let randomColor = 'rgb(' + red + ',' + green + ',' + blue + ')';
+                return randomColor;
+            }
+
+
+            weekCalendar = new FullCalendar.Calendar(weekCalendarEl, {
+                timeZone: 'UTC',
+                initialView: 'dayGridWeek',
+                events: weekArrayData,
+                editable: false,
+                selectable: false,
+
+            });
+            weekCalendar.render();
+
+
+        });
     </script>
 </body>
 

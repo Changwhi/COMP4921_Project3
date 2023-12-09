@@ -24,7 +24,8 @@
         <div class="card">
           <div class="card-content" style="max-width: 1100px;">
 
-            <div id='calendar' style="width: 100%; max-width: 1100px; max-height: 1100px; margin:10px auto;"></div>
+            <div id='calendar'
+              style="width: 100%; min-height: 600px; max-width: 1100px; max-height: 1100px; margin:10px auto;"></div>
           </div>
         </div>
       </div>
@@ -33,10 +34,10 @@
 
   <script>
     const calendarEl = document.getElementById('calendar');
-    const arrayData = JSON.parse('<%- JSON.stringify(locals.calendar_data) %>');
+    let arrayData = JSON.parse('<%- JSON.stringify(locals.calendar_data) %>');
+    let calendar;
 
     document.addEventListener('DOMContentLoaded', function () {
-      let calendar;
       let randomSelectedColor;
       let tempColor;
       function getRandomColor() {
@@ -47,18 +48,15 @@
         return randomColor;
       }
 
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        timeZone: 'UTC',
+        initialView: 'dayGridMonth',
+        events: arrayData,
+        editable: false,
+        selectable: false,
 
-      setTimeout(function () {
-        calendar = new FullCalendar.Calendar(calendarEl, {
-          timeZone: 'UTC',
-          initialView: 'dayGridMonth',
-          events: arrayData,
-          editable: false,
-          selectable: false,
-
-        });
-        calendar.render();
-      }, 3000)
+      });
+      calendar.render();
 
     });
   </script>

@@ -8,13 +8,40 @@
                 <div class="card" style="margin-left: 20%; margin-right: 20%;">
                     <div class="card-content">
                         <div class="content">
-                            Dentist
-                            <time datetime="2016-1-1">9:00AM</time>
+                            <div id="upcomingDayCalendar" style="min-height: 600px;"></div>
                         </div>
                     </div>
                 </div>
             </div>
     </section>
+    <script>
+        const upcomingCalendarEl = document.getElementById('upcomingDayCalendar');
+        let upcomingDayArrayData = JSON.parse('<%- JSON.stringify(locals.calendar_data) %>');
+        let upcomingCalendar;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let randomSelectedColor;
+            let tempColor;
+            function getRandomColorWeek() {
+                let red = Math.floor(Math.random() * 256);
+                let green = Math.floor(Math.random() * 256);
+                let blue = Math.floor(Math.random() * 256);
+                let randomColor = 'rgb(' + red + ',' + green + ',' + blue + ')';
+                return randomColor;
+            }
+            upcomingCalendar = new FullCalendar.Calendar(upcomingCalendarEl, {
+                timeZone: 'UTC',
+                initialView: 'dayGridDay',
+                events: upcomingDayArrayData,
+                editable: false,
+                selectable: false,
+
+            });
+            upcomingCalendar.next();
+            upcomingCalendar.render();
+
+        });
+    </script>
 </body>
 
 </html>

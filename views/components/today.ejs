@@ -8,21 +8,39 @@
                 <div class="card" style="margin-left: 20%; margin-right: 20%;">
                     <div class="card-content">
                         <div class="content">
-                            Go Shopping
-                            <time datetime="2016-1-1">11:00AM</time>
-                        </div>
-                    </div>
-                </div>
-                <div class="card" style="margin-left: 20%; margin-right: 20%;">
-                    <div class="card-content">
-                        <div class="content">
-                            Car in for service
-                            <time datetime="2016-1-1">2:00PM</time>
+                            <div id="dayCalendar" style="min-height: 600px;"></div>
                         </div>
                     </div>
                 </div>
             </div>
     </section>
+    <script>
+        const dayCalendarEl = document.getElementById('dayCalendar');
+        let dayArrayData = JSON.parse('<%- JSON.stringify(locals.calendar_data) %>');
+        let dayCalendar;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let randomSelectedColor;
+            let tempColor;
+            function getRandomColorWeek() {
+                let red = Math.floor(Math.random() * 256);
+                let green = Math.floor(Math.random() * 256);
+                let blue = Math.floor(Math.random() * 256);
+                let randomColor = 'rgb(' + red + ',' + green + ',' + blue + ')';
+                return randomColor;
+            }
+            dayCalendar = new FullCalendar.Calendar(dayCalendarEl, {
+                timeZone: 'UTC',
+                initialView: 'dayGridDay',
+                events: dayArrayData,
+                editable: false,
+                selectable: false,
+
+            });
+            dayCalendar.render();
+
+        });
+    </script>
 </body>
 
 </html>
