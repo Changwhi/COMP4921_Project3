@@ -96,7 +96,8 @@ router.get("/login", async (req, res) => {
   const isLoggedIn = isValidSession(req)
   res.render("login", {
     isLoggedIn: isLoggedIn,
-    message: null
+    message: null,
+      user_name: req.session.name,
   });
   return;
 });
