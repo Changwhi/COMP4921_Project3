@@ -6,6 +6,13 @@
     <section class="section has-background-light">
       <div class="maincolumns columns is-desktop">
         <div class="column is-10 is-offset-1 has-background-white" style="border-radius: 25px;">
+
+          <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+              <li><a href="/">Personal Calendar</a></li>
+              <li class="is-active"><a href="#" aria-current="page">Your Personal Calendar</a></li>
+            </ul>
+          </nav>
           <div class="tabs is-centered">
             <ul>
               <li class="is-active" onclick="displayComponent({'number': 0, 'name': '.today'})">
@@ -90,7 +97,7 @@
         <div class="modal-background"></div>
         <div class="columns">
           <div class="modal-content is-centered">
-            <div class="box" style="height: 600px;">
+            <div class="box" style="height: auto">
               <div id="error"></div>
               <p>Add an event!</p>
               <div class="column">
@@ -105,17 +112,68 @@
                 <label>End Date:</label>
                 <input id="end-datepicker" />
               </div>
+
+
+              <button id="add-friends-btn" class="button is-primary">
+                <span class="icon">
+                  <i class="fas fa-plus"></i>
+                </span>
+                <span>Add Friends</span>
+              </button>
+
+              <div id="added-friends-container" class="column">
+                <label>Added Friends:</label>
+                <div id="added-friends-list" class="tags">
+                  <!-- Selected friends will be listed here as tags -->
+                </div>
+              </div>
+
+
               <div class="column" style="margin-top: 300px;">
                 <button id="submit-event" type="submit" class="button is-primary">Create
                   event</button>
                 <button id="cancel-form" type="cancel" class="button is-primary">Cancel</button>
               </div>
+
             </div>
           </div>
         </div>
         <button class="modal-close is-large" aria-label="close"></button>
       </div>
 
+      <!-- //modal for friends list -->
+      <div id="friends-list-modal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+          <header class="modal-card-head">
+            <p class="modal-card-title">Select Friends</p>
+            <button class="delete" aria-label="close" onclick="closeFriendsListModal()"></button>
+          </header>
+          <section class="modal-card-body">
+            <!-- Friends list -->
+            <div class="list is-hoverable">
+              <%if(locals.friends) {%>
+
+                <% let i=0; %>
+                  <% for (i; i < friends.length; i++) { %>
+                    <div class="list-item">
+                      <input type="checkbox" id=<%=friends[i].friend_id%> name="friends" value=<%=friends[i].name%>>
+                        <label for="friend1">
+                          <%= friends[i].name%>
+                        </label>
+                    </div>
+
+                    <%}%>
+
+                      <% }%>
+            </div>
+          </section>
+          <footer class="modal-card-foot">
+            <button class="button is-success" onclick="addSelectedFriends()">Add</button>
+            <button class="button" onclick="closeFriendsListModal()">Cancel</button>
+          </footer>
+        </div>
+      </div>
 
     </section>
 
@@ -126,6 +184,36 @@
       const cancelFormBtn = document.getElementById('cancel-form')
       const submitEventBtn = document.getElementById('submit-event')
       let storedEvents = [];
+      let selectedFriends = [];
+
+      document.getElementById('add-friends-btn').addEventListener('click', function () {
+        document.getElementById('friends-list-modal').classList.add('is-active');
+      });
+
+      function closeFriendsListModal() {
+        document.getElementById('friends-list-modal').classList.remove('is-active');
+      }
+
+      function addSelectedFriends() {
+        let addedFriendsList = document.getElementById('added-friends-list');
+        addedFriendsList.innerHTML = ''; // Clear the list before adding new tags
+
+        let checkboxes = document.querySelectorAll('#friends-list-modal input[type="checkbox"]:checked');
+        for (let checkbox of checkboxes) {
+          selectedFriends.push(checkbox.id); // Assuming value is a friend ID
+          console.log("check id" + checkbox.id)
+
+          // Create tag element for each friend and append to the list
+          let friendTag = document.createElement('span');
+          friendTag.className = 'tag is-primary';
+          friendTag.textContent = checkbox.value; // Assuming the next sibling is the label with the friend's name
+          addedFriendsList.appendChild(friendTag);
+        }
+
+        // Assuming you have access to newEvent here, if not, store selectedFriends in a higher scope variable
+
+        closeFriendsListModal();
+      }
 
       function displayComponent(params) {
         console.log(params.number)
@@ -249,6 +337,8 @@
 
 
         submitEventBtn.addEventListener('click', async () => {
+          //for <frined></frined>
+
           let eventName = document.getElementById('event-name')
           submitEventBtn.disabled = true;
           randomSelectedColor = getRandomColor();
@@ -263,6 +353,7 @@
                 end: endDate,
                 color: randomSelectedColor,
                 backgroundColor: getRandomColor(),
+                users: selectedFriends,
               };
               storedEvents.push(newEvent);
               upcomingCalendar.addEvent(newEvent);

@@ -15,20 +15,20 @@ async function createUser(postData) {
     name: postData.name
   }
 
-	try {
-		const results = await mySqlDatabase.query(createUserSQL, params);
-        console.log("Successfully created user");
-		return true;
-	}
-	catch(err) {
-        console.log("Error inserting user");
-        console.log(err);
-		return false;
-	}
+  try {
+    const results = await mySqlDatabase.query(createUserSQL, params);
+    console.log("Successfully created user");
+    return true;
+  }
+  catch (err) {
+    console.log("Error inserting user");
+    console.log(err);
+    return false;
+  }
 }
 
 async function getUsers() {
-	let getUsersSQL = `
+  let getUsersSQL = `
 		SELECT hashed_password, email, user_id, user_type_id, name
 		FROM user;
 	`;
@@ -46,4 +46,29 @@ async function getUsers() {
 }
 
 
-module.exports = { createUser, getUsers };
+
+async function getUser(postData) {
+  let getUsersSQL = `
+		SELECT hashed_password, email, user_id, user_type_id, name
+		FROM user
+    WHERE user_id = :user_id;
+	`;
+  let params = {
+    user_id: postData.user_id
+  }
+
+  try {
+    const result = await mySqlDatabase.query(getUsersSQL, params);
+    // console.log(results[0]);
+    return result[0];
+  }
+  catch (err) {
+    console.log("Error getting users");
+    console.log(err);
+    return false;
+  }
+}
+
+
+
+module.exports = { createUser, getUsers, getUser };

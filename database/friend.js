@@ -25,8 +25,7 @@ async function addFriend(data) {
   // };
   try {
     const result1 = await mySqlDatabase.query(firstSQL, params1);
-    const result2 = await mySqlDatabase.query(secondSQL, params2);
-    console.log(result1)
+    // const result2 = await mySqlDatabase.query(secondSQL, params2);
     return true;
   } catch (err) {
     console.log("Error: addFriend - " + err)
@@ -43,7 +42,6 @@ on u.user_id = f.friend_id
 where f.user_id = ?
 `
   let params = [data.user_id]
-  console.log("UID" + params)
   try {
     const result = await mySqlDatabase.query(preSQLStatement, params)
     return result;
@@ -62,7 +60,6 @@ where f.friend_id = ?
 and f.friend_status = 0;
 `
   let params = [data.user_id]
-  console.log("UID" + params)
   try {
     const result = await mySqlDatabase.query(preSQLStatement, params)
     return result;
@@ -85,7 +82,6 @@ async function acceptFriendRequest(data) {
   }
   try {
     const result = await mySqlDatabase.query(preSQLStatement, params)
-    console.log("result of test" + JSON.stringify(result))
     return true;
   } catch (err) {
     console.log("failed to accept friend :" + err)

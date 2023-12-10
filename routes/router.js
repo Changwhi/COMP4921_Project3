@@ -64,20 +64,28 @@ function sessionValidation(req, res, next) {
 }
 
 
-router.get("/", sessionValidation,async (req, res) => {
+router.get("/", sessionValidation, async (req, res) => {
   console.log("idex page hit")
   const isLoggedIn = isValidSession(req)
+  const user_id = req.session.userID;
+  const friends = await db_friend.retrieveFriend({ user_id: user_id })
   let calendar_data = await db_events.getEvents({
-    user_id: req.session.userID
+    user_id: user_id
   });
   for (let i = 0; i < calendar_data.length; i++) {
     calendar_data[i].start = moment.utc(calendar_data[i].start).local().format('YYYY-MM-DD HH:mm:ss');
     calendar_data[i].end = moment.utc(calendar_data[i].end).local().format('YYYY-MM-DD HH:mm:ss')
+    const owner = await db_users.getUser({ user_id: calendar_data[i].owner_id })
+    if (owner[0]) {
+      calendar_data[i].title = 'Created By : ' + owner[0].name + " Event : " + calendar_data[i].title
+    }
   }
   if (calendar_data) {
     res.render("index", {
+      user_name: req.session.name,
       isLoggedIn: isLoggedIn,
-      calendar_data: calendar_data
+      calendar_data: calendar_data,
+      friends: friends[0],
     })
     return;
   }
@@ -88,7 +96,8 @@ router.get("/login", async (req, res) => {
   const isLoggedIn = isValidSession(req)
   res.render("login", {
     isLoggedIn: isLoggedIn,
-    message: null
+    message: null,
+      user_name: req.session.name,
   });
   return;
 });
@@ -247,154 +256,8 @@ router.get("/friends", sessionValidation, async (req, res) => {
       friend_list: response1[0],
       isFriendAdded: isFriendAdded,
       isInvalidFriend: isInvalidFriend,
-      isLoggedIn: isLoggedIn
-    })
-    return;
-  } catch (err) {
-    console.log("Error /friends:" + err);
-    res.render('error', {
-      message: `Failed render friend page : ${err}`
-    })
-    return;
-
-  }
-})
-
-router.post('/friends/add', sessionValidation, async (req, res) => {
-  try {
-    const target_name = req.body.target_name;
-    const current_user_id = req.session.userID;
-    const users = await db_users.getUsers();
-    let target_user = null;
-
-    for (let i = 0; i < users.length; i++) {
-      if (users[i].name == target_name) {
-        target_user = users[i];
-        break;
-      }
-    }
-
-    // Prevent adding oneself as a friend
-    if (target_user && current_user_id === target_user.user_id) {
-      res.redirect("/friends/?invalidFriend=You cannot add yourself in your friend list");
-      return; // Make sure to exit the function here
-    }
-
-    // Add friend logic
-    if (target_user) {
-      const checkRequest = await db_friend.retrieveSentRequest({
-        user_id: current_user_id
-      })
-
-      for (let i = 0; i < checkRequest[0].length; i++) {
-        if (checkRequest[0][i].user_id == target_user.user_id) {
-          const response1 = await db_friend.acceptFriendRequest({
-            user_id: current_user_id,
-            friend_id: target_user.user_id
-          })
-          const response2 = await db_friend.addFriend({
-            status: 1,
-            user_id: current_user_id,
-            friend_id: target_user.user_id
-          });
-          // console.log("chek" + checkRequest[0][i])
-          // console.log("target" + target_user.user_id)
-          // console.log("result" + JSON.stringify(response))
-          res.redirect("/friends/?added=true");
-          return;
-        }
-      }
-      const response = await db_friend.addFriend({
-        status: 0,
-        user_id: current_user_id,
-        friend_id: target_user.user_id
-      });
-      if (response) {
-        res.redirect("/friends/?added=true");
-        return; // Exit the function
-      } else {
-        res.redirect("/friends/?invalidFriend=Friend already in your friend list");
-        return; // Exit the function
-      }
-    } else {
-      res.redirect("/friends/?invalidFriend=Friend does not exist");
-      return; // Exit the function
-    }
-  } catch (err) {
-    console.log("Error /friends/add :" + err);
-    res.render('error', {
-      message: `Failed to add friend : ${err}`
-    });
-    return; // Exit the function
-  }
-});
-
-
-
-router.post('/friends/add/accept', sessionValidation, async (req, res) => {
-  try {
-    const user_id = req.session.userID;
-    const friend_id = req.body.friend_id;
-    const users = await db_users.getUsers();
-    console.log("user_id" + user_id)
-    console.log("friend_id" + friend_id)
-
-    let target_user = null;
-
-    for (let i = 0; i < users.length; i++) {
-      if (users[i].user_id == friend_id) {
-        target_user = users[i];
-        break;
-      }
-    }
-    const response = await db_friend.acceptFriendRequest({
-      user_id: user_id,
-      friend_id: friend_id
-    })
-    console.log("retrieved data" + JSON.stringify(target_user))
-    if (response) {
-      const response = await db_friend.addFriend({
-        status: 1,
-        user_id: user_id,
-        friend_id: friend_id
-      });
-      res.redirect("/friends/?added=true");
-      return
-    } else {
-      res.redirect("/friends/?invalidFriend=Failed to accept friend");
-      return; // Exit the function
-    }
-
-  } catch (err) {
-    console.log("Error /friends/add :" + err);
-    res.render('error', {
-      message: `Failed to accept request : ${err}`
-    });
-    return; // Exit the function
-  }
-});
-
-
-router.get("/friends", sessionValidation, async (req, res) => {
-  console.log("Hello")
-  try {
-    const isLoggedIn = isValidSession(req)
-    const user_id = req.session.userID;
-    console.log("myID" + user_id)
-    const isFriendAdded = req.query.added;
-    const isInvalidFriend = req.query.invalidFriend;
-    const response1 = await db_friend.retrieveFriend({
-      user_id: user_id
-    })
-    const response2 = await db_friend.retrieveSentRequest({
-      user_id: user_id
-    })
-    res.render("friends", {
-      sentRequest: response2[0],
-      friend_list: response1[0],
-      isFriendAdded: isFriendAdded,
-      isInvalidFriend: isInvalidFriend,
-      isLoggedIn: isLoggedIn
+      isLoggedIn: isLoggedIn,
+      user_name: req.session.name,
     })
     return;
   } catch (err) {
@@ -523,7 +386,123 @@ router.post('/friends/add/accept', sessionValidation, async (req, res) => {
 
 
 
-router.post("/submitEvent", async (req, res) => {
+router.post('/friends/add', sessionValidation, async (req, res) => {
+  try {
+    const target_name = req.body.target_name;
+    const current_user_id = req.session.userID;
+    const users = await db_users.getUsers();
+    let target_user = null;
+
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].name == target_name) {
+        target_user = users[i];
+        break;
+      }
+    }
+
+    // Prevent adding oneself as a friend
+    if (target_user && current_user_id === target_user.user_id) {
+      res.redirect("/friends/?invalidFriend=You cannot add yourself in your friend list");
+      return; // Make sure to exit the function here
+    }
+
+    // Add friend logic
+    if (target_user) {
+      const checkRequest = await db_friend.retrieveSentRequest({
+        user_id: current_user_id
+      })
+
+      for (let i = 0; i < checkRequest[0].length; i++) {
+        if (checkRequest[0][i].user_id == target_user.user_id) {
+          const response1 = await db_friend.acceptFriendRequest({
+            user_id: current_user_id,
+            friend_id: target_user.user_id
+          })
+          const response2 = await db_friend.addFriend({
+            status: 1,
+            user_id: current_user_id,
+            friend_id: target_user.user_id
+          });
+          // console.log("chek" + checkRequest[0][i])
+          // console.log("target" + target_user.user_id)
+          // console.log("result" + JSON.stringify(response))
+          res.redirect("/friends/?added=true");
+          return;
+        }
+      }
+      const response = await db_friend.addFriend({
+        status: 0,
+        user_id: current_user_id,
+        friend_id: target_user.user_id
+      });
+      if (response) {
+        res.redirect("/friends/?added=true");
+        return; // Exit the function
+      } else {
+        res.redirect("/friends/?invalidFriend=Friend already in your friend list");
+        return; // Exit the function
+      }
+    } else {
+      res.redirect("/friends/?invalidFriend=Friend does not exist");
+      return; // Exit the function
+    }
+  } catch (err) {
+    console.log("Error /friends/add :" + err);
+    res.render('error', {
+      message: `Failed to add friend : ${err}`
+    });
+    return; // Exit the function
+  }
+});
+
+
+
+router.post('/friends/add/accept', sessionValidation, async (req, res) => {
+  try {
+    const user_id = req.session.userID;
+    const friend_id = req.body.friend_id;
+    const users = await db_users.getUsers();
+    console.log("user_id" + user_id)
+    console.log("friend_id" + friend_id)
+
+    let target_user = null;
+
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].user_id == friend_id) {
+        target_user = users[i];
+        break;
+      }
+    }
+    const response = await db_friend.acceptFriendRequest({
+      user_id: user_id,
+      friend_id: friend_id
+    })
+    console.log("retrieved data" + JSON.stringify(target_user))
+    if (response) {
+      const response = await db_friend.addFriend({
+        status: 1,
+        user_id: user_id,
+        friend_id: friend_id
+      });
+      res.redirect("/friends/?added=true");
+      return
+    } else {
+      res.redirect("/friends/?invalidFriend=Failed to accept friend");
+      return; // Exit the function
+    }
+
+  } catch (err) {
+    console.log("Error /friends/add :" + err);
+    res.render('error', {
+      message: `Failed to accept request : ${err}`
+    });
+    return; // Exit the function
+  }
+});
+
+
+
+router.post("/submitEvent", sessionValidation, async (req, res) => {
   const isLoggedIn = isValidSession(req)
   try {
     let lastElement = req.body[req.body.length - 1];
@@ -532,15 +511,36 @@ router.post("/submitEvent", async (req, res) => {
     let eventStartTime = lastElement.start;
     let evenEndTime = lastElement.end;
     let eventColor = lastElement.color;
-    let backgroundColor = lastElement.backgroundColor
+    let backgroundColor = lastElement.backgroundColor;
+    const friends = lastElement.users ? lastElement.users : [];
     let success = await db_events.createEvent({ backgroundColor: backgroundColor, event_name: eventTitle, event_start_date: eventStartTime, event_end_date: evenEndTime, user_id: user_id, event_color: eventColor })
+
     if (success) {
-      let calendar_data = await db_events.getEvents({ user_id: req.session.userID });
-      if (calendar_data) {
-        res.render("index", { isLoggedIn: isLoggedIn, calendar_data: calendar_data })
-        return;
+      const event_id = success[0].insertId;
+      console.log("Check aafriends" + JSON.stringify(success[0]))
+      await db_events.addFriendsToEvent({ user_id: user_id, event_id: event_id, owner_id: user_id })
+      for (let friend of friends) {
+        await db_events.addFriendsToEvent({ user_id: friend, event_id: event_id, owner_id: user_id })
       }
-    } else {
+
+    }
+
+    let calendar_data = await db_events.getEvents({
+      user_id: user_id
+    });
+    for (let i = 0; i < calendar_data.length; i++) {
+      calendar_data[i].start = moment.utc(calendar_data[i].start).local().format('YYYY-MM-DD HH:mm:ss');
+      calendar_data[i].end = moment.utc(calendar_data[i].end).local().format('YYYY-MM-DD HH:mm:ss')
+      const owner = await db_users.getUser({ user_id: calendar_data[i].owner_id })
+      if (owner[0]) {
+        calendar_data[i].title = 'Created By : ' + owner[0].name + " Event : " + calendar_data[i].title
+      }
+    }
+    if (calendar_data) {
+      res.render("index", { isLoggedIn: isLoggedIn, calendar_data: calendar_data })
+      return;
+    }
+    else {
       res.render('error', {
         message: `Failed to load the event`,
         title: "Event load failure"
@@ -577,7 +577,8 @@ router.get('/friendCalendar', sessionValidation, async (req, res) => {
       isLoggedIn: isLoggedIn,
       friend_calendar: friend_calendar,
       listOfFriends: friendsOfUser[0],
-      sLU: sLU
+      sLU: sLU,
+      user_name: req.session.name,
     })
     return;
   }
